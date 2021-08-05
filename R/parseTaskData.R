@@ -1,9 +1,9 @@
 
-
-
 # we want to run functions named as a string over a bunch of participants
 
 getGroupPerformance <- function(year, semester, task) {
+  
+  if (is.integer(year)) {year <- sprintf('%d',year)}
   
   # load function and settings from task source file
   source(paste0('R/',task,'.R'))
