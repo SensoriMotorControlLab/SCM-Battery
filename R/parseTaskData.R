@@ -64,3 +64,61 @@ getIDtimestamp <- function(filename, task) {
   return(c('participant'=pp, 'timestamp'=ts))
   
 }
+
+combineCSVfiles <- function(path, nrows=NULL, ncols=NULL, skiponwarning=TRUE, files=NULL) {
+  
+  # combine all csv files in the folder on the path into one data frame
+  
+  if (is.null(files)) {
+    files <- list.files(path = path, 
+                        full.names = TRUE,
+                        pattern = '\\.csv$')
+  }
+  
+  datalist <- list()
+  
+  for (file in files) {
+    
+    csv_df <- tryCatch(
+      {
+        # we try to read the file:
+        csv_df <- read.csv(file = file,
+                           stringsAsFactors = FALSE) 
+        
+        # check the columns and rows:
+        if(!is.null(nrows)) {
+          if(dim(csv_df)[1] != nrows) {
+            next # do not include files with incorrect number of rows
+          }
+        }
+        if(!is.null(ncols)) {
+          if(dim(csv_df)[2] != ncols) {
+            next # do not include files with incorrect number of columns
+          }
+        }
+        
+        # at this point the file seems likely OK, so we add the data frame to our list:
+        datalist[[length(datalist)+1]] <- csv_df
+        
+      },
+      error=function(cond) {
+        message(paste("File can not be read:", file))
+        message(cond)
+        return(NULL)
+      },
+      warning=function(cond) {
+        message(paste("File caused a warning:", file))
+        message(cond)
+        return(NULL) # could be a different value from errors, like NA
+      },
+      finally={
+        # nothing here?
+      }
+    )
+    
+  }
+  
+  # combine all data frames and return:
+  return(do.call(rbind, datalist))
+  
+}
