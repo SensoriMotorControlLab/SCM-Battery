@@ -122,3 +122,20 @@ combineCSVfiles <- function(path, nrows=NULL, ncols=NULL, skiponwarning=TRUE, fi
   return(do.call(rbind, datalist))
   
 }
+
+convertCellToNumVector <- function(v) {
+  
+  # remove opening square bracket:
+  v <- gsub('\\[', replacement='', x=v)
+  # remove closing square bracket:
+  v <- gsub(']', replacement='', x=v)
+  # split by commas:
+  v <- strsplit(v, ',')
+  # convert to numeric:
+  v <- lapply(v, FUN=as.numeric)
+  # make vector:
+  v <- as.vector(unlist(v))
+  
+  return(v)
+  
+}
