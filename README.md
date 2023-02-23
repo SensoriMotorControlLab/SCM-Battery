@@ -10,28 +10,38 @@ Scripts to analyze the SCM-Battery data.
 *assel.R:*
 - getAsselData()
 - getAsselRegressionData()
+
 *data.R:*
 - getOSFdata()
+
 *gonogo.R:*
 - gonogo()
+
 *nback.R:*
 - nback()
+
 *parseTaskData.R:*
 - getGroupPerformance()
 - getIDtimestamp()
 - combineCSVfiles()
 - convertCellToNumVector()
+
 *prepare.R:*
 - renameData()
+
 *statistics.R:*
 - dprime()
 - cowan.k()
+
 *taskswitching.R:*
 - taskswitching()
+
 *trailmaking.R:*
 - trailmaking()
+
 *tunneling.R:*
 - tunneling()
+
 *visualsearch.R:*
 - visualsearch()
 
