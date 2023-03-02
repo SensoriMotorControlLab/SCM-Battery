@@ -14,11 +14,11 @@ getGroupPerformance <- function(year, semester, task) {
   # (usually best to keep this TRUE)
   
   # get list of file names
-  folder <- sprintf('data/%s/%s/%s/',year,semester,task)
+  folder <- file.path('data',year,semester,task)
   files <- list.files(folder,pattern='*.csv')
   
   # use readLines and weed out those with too few lines
-  filelines <- unlist(lapply(sprintf('data/%s/%s/%s/%s',year,semester,task,files), function(x){length(readLines(x))}))
+  filelines <- unlist(lapply(sprintf('%s%s%s',folder,.Platform$file.sep,files), function(x){length(readLines(x))}))
   files <- files[which(filelines %in% nlines)]
   
   # extract participant IDs and timestamps
