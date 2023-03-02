@@ -47,8 +47,8 @@ gonogo <- function(filename) {
   # get dprime, we need counts:
   hits   <- length(which(df$trialtype == 'go'   & df$trialResp.corr == 1))
   misses <- length(which(df$trialtype == 'go'   & df$trialResp.corr == 0))
-  fas    <- length(which(df$trialtype == 'nogo' & df$trialResp.corr == 1))
-  crs    <- length(which(df$trialtype == 'nogo' & df$trialResp.corr == 0))
+  fas    <- length(which(df$trialtype == 'nogo' & df$trialResp.corr == 0))
+  crs    <- length(which(df$trialtype == 'nogo' & df$trialResp.corr == 1))
   
   dpr    <- dprime(hits=hits, 
                    misses=misses, 
