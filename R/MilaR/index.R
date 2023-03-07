@@ -90,4 +90,37 @@ ggplot(df, aes(x = cannabis_group, y = dprime, fill= cannabis_group)) +
   theme(legend.position = "none")  
 
 # line segment graph
+df %>%
+  select(RT_6_absent:RT_18_present, cannabis_group)  %>%
+  pivot_longer(RT_6_absent:RT_18_present, names_to = "Group", values_to = "RT") %>%
+  mutate(set_size = Group,
+         set_size = case_when(Group == "RT_6_absent" ~ 6,
+                              Group == "RT_12_absent" ~ 12,
+                              Group == "RT_18_absent" ~ 18,
+                              Group == "RT_6_present" ~ 6,
+                              Group == "RT_12_present" ~ 12,
+                              Group == "RT_18_present" ~ 18)) %>%
+  mutate(Present = Group,
+         Present = case_when(Group == "RT_6_absent" ~ "absent",
+                             Group == "RT_12_absent" ~ "absent",
+                             Group == "RT_18_absent" ~ "absent",
+                             Group == "RT_6_present" ~ "present",
+                             Group == "RT_12_present" ~ "present",
+                             Group == "RT_18_present" ~ "present"))  %>%
+  group_by(cannabis_group, set_size, Present) %>%
+  mutate(count = n()) %>%
+  group_by(cannabis_group, set_size, Present, count) %>%
+  summarise_at(vars(RT), list(mean = mean, sd = sd)) %>%
+  mutate(se = sd/sqrt(count)) %>%
+  ggplot(aes(x=factor(set_size), y=mean, 
+             group=interaction(Present, cannabis_group),
+             shape = Present,
+             color=cannabis_group)) + 
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), 
+                position=position_dodge(width=0.05),
+                width = 0.1) +
+  geom_line(aes(linetype = Present)) +
+  geom_point(size=3) +
+  scale_y_continuous(limits = c(0, 6), name = "Reaction Time (s)") +
+  xlab("Set Size")
 
