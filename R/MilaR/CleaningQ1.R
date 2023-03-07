@@ -56,6 +56,3 @@ q1 <- subset(q1, (neurological_condition == "No" | neurological_condition_descri
 
 # remove opiate users
 q1 <- q1[which(q1$recreational_opiate_use == "No"),]
-
-# remove those using opiates
-info <- info[which(info$recreational_opiate_use == "No"),]
