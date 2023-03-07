@@ -14,12 +14,12 @@ getOSFdata <- function(year, semester, task, overwrite=FALSE, removezip=FALSE) {
   #print(path)
   
   if (dir.exists(path)) {
-     files <- list.files(path,pattern='*.csv')
-     #print(files)
-     if (length(files) > 0 & !overwrite) {
-       # there are files in the target folder: skipping this one
-       return(NULL)
-     }
+    files <- list.files(path,pattern='*.csv')
+    #print(files)
+    if (length(files) > 0 & !overwrite) {
+      # there are files in the target folder: skipping this one
+      return(NULL)
+    }
   } else {
     # the directory does not exist: let's make it
     dir.create(file.path('data', year))
@@ -29,7 +29,7 @@ getOSFdata <- function(year, semester, task, overwrite=FALSE, removezip=FALSE) {
   
   # if the zip file exists, do we need to check that and do something?
   # I'm tending to 'no' here...
-
+  
   # check the OSF repository
   OSFnode <- osfr::osf_retrieve_node("q8kda")
   
