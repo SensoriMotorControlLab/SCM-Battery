@@ -2,6 +2,10 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(lubridate)
+install.packages("lme4", dependencies=TRUE)
+library(lme4)
+install.packages("lmerTest", dependencies=TRUE)
+library(lmerTest)
 
 # load helpers
 source('R/parseTaskData.R')
@@ -9,19 +13,6 @@ source('R/data.R')
 source('R/statistics.R')
 
 source('R/MilaR/helper.R')
-
-Part3_1 <- read.csv('data/Immediate+Cannabis+Effects-+Part+3_November+2,+2022_19.43.csv', stringsAsFactors=F)
-Part3_2 <- read.csv('data/Immediate+Cannabis+Effects-+Winter22-Part+3_November+2,+2022_19.53.csv', stringsAsFactors=F)
-
-
-
-# keeping only the columns that will be used
-Part3_1 <- Part3_1[columns]
-Part3_2 <- Part3_2[columns]
-
-# keep those who have finished the session
-Part3_1 <- Part3_1[which(Part3_1$Finished == 'True'),]
-Part3_2 <- Part3_2[which(Part3_2$Finished == 'True'),]
 
 #### identifying part 3 and 4 ####
 
@@ -114,13 +105,7 @@ for (task in tasks) {
 }
 
 #### get tasks ####
-gng_df <- getGroupPerformance("pavlovia", "SensoriMotorBattery_anonymized", "gonogo", file_list = tasks_lists[["gonogo_high"]])
-gng_df_control <- getGroupPerformance("pavlovia", "SensoriMotorBattery_anonymized", "gonogo", file_list = tasks_lists[["gonogo_control"]])
-
-vs_df <- getGroupPerformance("pavlovia", "SensoriMotorBattery_anonymized", "visualsearch", file_list = tasks_lists[["visualsearch_high"]])
-vs_df_control <- getGroupPerformance("pavlovia", "SensoriMotorBattery_anonymized", "visualsearch", file_list = tasks_lists[["visualsearch_control"]])
-
-tasks <- c("gonogo", "visualsearch", "tunneling")
+tasks <- c("gonogo", "visualsearch", "taskswitching", "tunneling", "trailmaking")
 suffixes <- c("_high", "_control")
 
 for (task in tasks) {
@@ -131,68 +116,106 @@ for (task in tasks) {
   }
 }
 
+tasks <- c("nback")
+suffixes <- c("_high", "_control")
+
+for (task in tasks) {
+  for (suffix in suffixes) {
+    file_list <- tasks_lists[[paste0(task, suffix)]]
+    df <- getGroupPerformance("pavlovia", "SensoriMotorBattery_raw", task, file_list = file_list)
+    assign(paste0(task, suffix, "_df"), df)
+  }
+}
+
 df_imm <- merge(Part3_1, gng_df,   by.x='id', by.y='participant', all=FALSE)
 
-#### testing why not working reading files ####
+#### combining data ####
 
-year <- "pavlovia"
-semester <- "SensoriMotorBattery_anonymized" 
-task <- "taskswitching" 
-file_list = tasks_lists[["taskswitching_high"]]
-  
-if (is.integer(year)) {year <- sprintf('%d',year)}
+gonogo_control_df$treatment <- "control"
+gonogo_high_df$treatment <- "experiment"
 
-# load function and settings from task source file
-source(paste0('R/',task,'.R'))
+gonogo_combined_df <- rbind(gonogo_control_df, gonogo_high_df)
 
-# "settings" are variables declared in the sourced file:
-# nlines: a vector of acceptable number fo lines in each csv file
-# usefirst: boolean saying if we use the first of multiple files for one participants
-# (usually best to keep this TRUE)
+taskswitching_control_df$treatment <- "control"
+taskswitching_high_df$treatment <- "experiment"
 
-# get list of file names
-folder <- file.path('data',year,semester,task)
-if(length(file_list) == 0){
-  files <- list.files(folder,pattern='*.csv')
-} else {
-  files <- file_list
-}
+taskswitching_combined_df <- rbind(taskswitching_control_df, taskswitching_high_df)
 
-# use readLines and weed out those with too few lines
-filelines <- unlist(lapply(sprintf('%s%s%s',folder,.Platform$file.sep,files), function(x){length(readLines(x))}))
-files <- files[which(filelines %in% nlines)]
 
-# extract participant IDs and timestamps
-participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp_KK, task)), stringsAsFactors=F)
-participants <- participants[order(participants$timestamp),]
-row.names(participants) <- NULL
+nback_control_df$treatment <- "control"
+nback_high_df$treatment <- "experiment"
 
-# remove duplicates:
-participants <- participants[!duplicated(participants$participant, fromLast=!usefirst),]
+nback_combined_df <- rbind(nback_control_df, nback_high_df)
+nback_combined_df$dprime <- nback_combined_df$N1_dprime + 
+  nback_combined_df$N2_dprime + nback_combined_df$N3_dprime
 
-# get relative filenames:
-participants$filename <- sprintf('data/%s/%s/%s/%s_%s_%s',year,semester,task,participants$participant,participants$task,participants$timestamp)
 
-# magic: this assigns a function to f, by finding a function
-# that has the name specified in the character variable task
-# which is why the function in the sourced file
-# (that has the same name as the task)
-# needs to have the same name as the task
-f <- match.fun(task)
+trailmaking_control_df$treatment <- "control"
+trailmaking_high_df$treatment <- "experiment"
 
-# and use lapply to run stuff on all participants
-functionoutput <- as.data.frame(do.call("rbind", lapply(participants$filename, f)))
+trailmaking_combined_df <- rbind(trailmaking_control_df, trailmaking_high_df)
 
-# this will be a complicated format, so we simplify it a little here
-colnames <- names(functionoutput)
-for (colname in colnames) {
-  functionoutput[colname] <- unlist(functionoutput[colname])
-}
-  
+tunneling_control_df$treatment <- "control"
+tunneling_high_df$treatment <- "experiment"
 
-for (f in tasks_lists[["taskswitching_high"]]){
-  print(f)
-  taskswitching(f)
-}
+tunneling_combined_df <- rbind(tunneling_control_df, tunneling_high_df)
 
+visualsearch_control_df$treatment <- "control"
+visualsearch_high_df$treatment <- "experiment"
+
+visualsearch_combined_df <- rbind(visualsearch_control_df, visualsearch_high_df)
+
+# Set up model formula with random intercepts for each participant
+model <- lmer(dprime ~ treatment + (1|participant), data = gonogo_combined_df)
+
+# Fit the model
+fit <- summary(model)
+
+# View the model results
+print(fit)
+
+# Set up model formula with random intercepts for each participant
+model <- lmer(totaltime ~ treatment + (1|participant), data = taskswitching_combined_df)
+
+# Fit the model
+fit <- summary(model)
+
+# View the model results
+print(fit)
+
+# Set up model formula with random intercepts for each participant
+model <- lmer(dprime ~ treatment + (1|participant), data = nback_combined_df)
+
+# Fit the model
+fit <- summary(model)
+
+# View the model results
+print(fit)
+
+# Set up model formula with random intercepts for each participant
+model <- lmer(totaltime ~ treatment + (1|participant), data = trailmaking_combined_df)
+
+# Fit the model
+fit <- summary(model)
+
+# View the model results
+print(fit)
+
+# Set up model formula with random intercepts for each participant
+model <- lmer(totaltime ~ treatment + (1|participant), data = tunneling_combined_df)
+
+# Fit the model
+fit <- summary(model)
+
+# View the model results
+print(fit)
+
+# Set up model formula with random intercepts for each participant
+model <- lmer(totaltime ~ treatment + (1|participant), data = visualsearch_combined_df)
+
+# Fit the model
+fit <- summary(model)
+
+# View the model results
+print(fit)
 

@@ -99,7 +99,7 @@ taskswitching <- function(filename) {
  
   singledf <- df[c(4:12, 17:25 ),]
   
-  print (singledf)
+  # print (singledf)
   # get proportion correct scores to data for single block trials:
   correctsingle <- aggregate(correctResponse ~ block, data = singledf, FUN = mean)
   
@@ -123,7 +123,7 @@ taskswitching <- function(filename) {
   singleBlock1_idx <- which(singledf$correctResponse == 1  & singledf$block == 1) 
   if (length(singleBlock1_idx) > 0) {
     singleBlock1_RT <- mean(singledf$key_resp.rt[singleBlock1_idx], na.rm=TRUE)
-  } else {singleBlock1_idx <- NA}
+  } else {singleBlock1_RT <- NA}
   
   singleBlock1_RT <- round(singleBlock1_RT, digits = 3)
  
@@ -133,7 +133,7 @@ taskswitching <- function(filename) {
   singleBlock2_idx <- which(singledf$correctResponse == 1  &  singledf$block==2) 
   if (length(singleBlock2_idx) > 0) {
     singleBlock2_RT <- mean(singledf$key_resp.rt[singleBlock2_idx], na.rm=TRUE)
-  } else {singleBlock2_idx <- NA}
+  } else {singleBlock2_RT <- NA}
   
   singleBlock2_RT <- round(singleBlock2_RT, digits = 3)
   
@@ -142,7 +142,7 @@ taskswitching <- function(filename) {
   switch_idx <- which(df$correctResponse == 1  & df$switch == 1 & df$block == 3) 
   if (length(switch_idx) > 0) {
     switch_RT <- mean(df$key_resp.rt[switch_idx], na.rm=TRUE)
-  } else {switch_idx <- NA}
+  } else {switch_RT <- NA}
   
   switch_RT <- round(switch_RT, digits = 3)
   
@@ -153,7 +153,7 @@ taskswitching <- function(filename) {
   nonswitch_idx <- which(df$correctResponse == 1  & df$switch == 0 & df$block == 3) 
   if (length(nonswitch_idx) > 0) {
     nonswitch_RT <- mean(df$key_resp.rt[nonswitch_idx], na.rm=TRUE)
-  } else {nonswitch_idx <- NA}
+  } else {nonswitch_RT <- NA}
   
   nonswitch_RT <- round(nonswitch_RT, digits = 3)
 
@@ -162,7 +162,7 @@ taskswitching <- function(filename) {
   congruent_idx <- which(df$correctResponse == 1  & df$congruent == 1 & df$block == 3) 
   if (length(congruent_idx) > 0) {
     congruent_RT <- mean(df$key_resp.rt[congruent_idx], na.rm=TRUE)
-  } else {congruent_idx <- NA}
+  } else {congruent_RT <- NA}
   
   congruent_RT <- round(congruent_RT, digits = 3)
   
@@ -170,7 +170,7 @@ taskswitching <- function(filename) {
   nonCongruent_idx <- which(df$correctResponse == 1  & df$congruent == 0 & df$block == 3) 
   if (length(nonCongruent_idx) > 0) {
     nonCongruent_RT <- mean(df$key_resp.rt[nonCongruent_idx], na.rm=TRUE)
-  } else {nonCongruent_idx <- NA}
+  } else {nonCongruent_RT <- NA}
   
   nonCongruent_RT <- round(nonCongruent_RT, digits = 3)
  

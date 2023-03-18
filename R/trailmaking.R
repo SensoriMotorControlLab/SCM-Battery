@@ -63,7 +63,7 @@ trailmaking <- function(filename) {
     output[1:length(output)] <- NA
   }
   
-  print(output)
+  #print(output)
   
   output[['participant']]     <- thisparticipant
   output[['totaltime']]       <- thistotaltime

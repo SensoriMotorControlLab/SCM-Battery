@@ -43,7 +43,7 @@ getOutputFiles <- function(folder_path, Part3_or_4, t = "within") {
   
   # Filter the joined dataframe to keep only the rows where the datetime column is within 5 days of EndDate
   df_imm <- df %>%
-    filter(datetime >= as_datetime(EndDate) - days(5),
+    filter(datetime >= as_datetime(EndDate) - days(1),
            datetime <= as_datetime(EndDate))
   
   # remaining observations 
