@@ -10,6 +10,8 @@ source('R/statistics.R')
 
 getOSFdata(2020, "fall", "gonogo")
 getOSFdata(2020, "fall", "visualsearch")
+getOSFdata(2020, "fall", "nback")
+getOSFdata(2020, "fall", "trailmaking")
 
 # download questionnaire files and quality files: RUN ONCE
 getOSFdata(2020, "fall", "questionnaires")
@@ -19,6 +21,8 @@ getOSFdata(2020, "fall", "quality")
 
 gng_df <- getGroupPerformance(2020, "fall", "gonogo")
 vs_df <- getGroupPerformance(2020, "fall", "visualsearch")
+nback_df <- getGroupPerformance(2020, "fall", "nback")
+tm_df <- getGroupPerformance(2020, "fall", "trailmaking")
 
 #### create data based on Assel's ####
 

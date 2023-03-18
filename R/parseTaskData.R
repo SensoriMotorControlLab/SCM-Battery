@@ -1,7 +1,7 @@
 
 # we want to run functions named as a string over a bunch of participants
 
-getGroupPerformance <- function(year, semester, task) {
+getGroupPerformance <- function(year, semester, task, file_list = list()) {
   
   if (is.integer(year)) {year <- sprintf('%d',year)}
   
@@ -15,14 +15,19 @@ getGroupPerformance <- function(year, semester, task) {
   
   # get list of file names
   folder <- file.path('data',year,semester,task)
-  files <- list.files(folder,pattern='*.csv')
+  if(length(file_list) == 0){
+    files <- list.files(folder,pattern='*.csv')
+  } else {
+    files <- file_list
+  }
   
   # use readLines and weed out those with too few lines
   filelines <- unlist(lapply(sprintf('%s%s%s',folder,.Platform$file.sep,files), function(x){length(readLines(x))}))
   files <- files[which(filelines %in% nlines)]
   
   # extract participant IDs and timestamps
-  participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp, task)), stringsAsFactors=F)
+  # participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp, task)), stringsAsFactors=F)
+  participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp_KK, task)), stringsAsFactors=F)
   participants <- participants[order(participants$timestamp),]
   row.names(participants) <- NULL
   
@@ -30,7 +35,10 @@ getGroupPerformance <- function(year, semester, task) {
   participants <- participants[!duplicated(participants$participant, fromLast=!usefirst),]
   
   # get relative filenames:
-  participants$filename <- sprintf('data/%s/%s/%s/%s_%s_%s.csv',year,semester,task,participants$participant,task,participants$timestamp)
+  #participants$filename <- sprintf('data/%s/%s/%s/%s_%s_%s.csv',year,semester,task,participants$participant,task,participants$timestamp)
+  # fixing non-harmonized task names
+  participants$filename <- sprintf('data/%s/%s/%s/%s_%s_%s',year,semester,task,participants$participant,participants$task,participants$timestamp)
+  
   
   # magic: this assigns a function to f, by finding a function
   # that has the name specified in the character variable task
@@ -62,6 +70,14 @@ getIDtimestamp <- function(filename, task) {
   ts <- substr(filename, pos+nchar(pattern), nchar(filename)-4)
   
   return(c('participant'=pp, 'timestamp'=ts))
+  
+}
+
+getIDtimestamp_KK <- function(filename, task) {
+  
+  substrings <- strsplit(filename, "_")[[1]]
+  
+  return(c('participant'=substrings[1], 'task'=substrings[2], 'timestamp'=paste(substrings[3], substrings[4], sep = "_")))
   
 }
 

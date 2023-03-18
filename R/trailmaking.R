@@ -55,7 +55,7 @@ trailmaking <- function(filename) {
     
   }
   
-  print(thisparticipant)
+  #print(thisparticipant)
   
   # create named output vector
   output <- as.list(TMdata)
