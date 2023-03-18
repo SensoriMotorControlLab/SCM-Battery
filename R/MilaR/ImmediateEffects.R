@@ -131,91 +131,39 @@ df_imm <- merge(Part3_1, gng_df,   by.x='id', by.y='participant', all=FALSE)
 
 #### combining data ####
 
-gonogo_control_df$treatment <- "control"
-gonogo_high_df$treatment <- "experiment"
+tasks <- c("gonogo", "taskswitching", "nback", "trailmaking", "tunneling", "visualsearch")
 
-gonogo_combined_df <- rbind(gonogo_control_df, gonogo_high_df)
+for(task in tasks){
+  control_df <- get(paste0(task, "_control_df"))
+  high_df <- get(paste0(task, "_high_df"))
+  control_df$treatment <- "control"
+  high_df$treatment <- "experiment"
+  combined_df <- rbind(control_df, high_df)
+  assign(paste0(task, "_combined_df"), combined_df)
+}
 
-taskswitching_control_df$treatment <- "control"
-taskswitching_high_df$treatment <- "experiment"
 
-taskswitching_combined_df <- rbind(taskswitching_control_df, taskswitching_high_df)
-
-
-nback_control_df$treatment <- "control"
-nback_high_df$treatment <- "experiment"
-
-nback_combined_df <- rbind(nback_control_df, nback_high_df)
 nback_combined_df$dprime <- nback_combined_df$N1_dprime + 
   nback_combined_df$N2_dprime + nback_combined_df$N3_dprime
 
+#### output of models ####
 
-trailmaking_control_df$treatment <- "control"
-trailmaking_high_df$treatment <- "experiment"
+tasks <- c("gonogo", "taskswitching", "nback", "trailmaking", "tunneling", "visualsearch")
 
-trailmaking_combined_df <- rbind(trailmaking_control_df, trailmaking_high_df)
-
-tunneling_control_df$treatment <- "control"
-tunneling_high_df$treatment <- "experiment"
-
-tunneling_combined_df <- rbind(tunneling_control_df, tunneling_high_df)
-
-visualsearch_control_df$treatment <- "control"
-visualsearch_high_df$treatment <- "experiment"
-
-visualsearch_combined_df <- rbind(visualsearch_control_df, visualsearch_high_df)
-
-# Set up model formula with random intercepts for each participant
-model <- lmer(dprime ~ treatment + (1|participant), data = gonogo_combined_df)
-
-# Fit the model
-fit <- summary(model)
-
-# View the model results
-print(fit)
-
-# Set up model formula with random intercepts for each participant
-model <- lmer(totaltime ~ treatment + (1|participant), data = taskswitching_combined_df)
-
-# Fit the model
-fit <- summary(model)
-
-# View the model results
-print(fit)
-
-# Set up model formula with random intercepts for each participant
-model <- lmer(dprime ~ treatment + (1|participant), data = nback_combined_df)
-
-# Fit the model
-fit <- summary(model)
-
-# View the model results
-print(fit)
-
-# Set up model formula with random intercepts for each participant
-model <- lmer(totaltime ~ treatment + (1|participant), data = trailmaking_combined_df)
-
-# Fit the model
-fit <- summary(model)
-
-# View the model results
-print(fit)
-
-# Set up model formula with random intercepts for each participant
-model <- lmer(totaltime ~ treatment + (1|participant), data = tunneling_combined_df)
-
-# Fit the model
-fit <- summary(model)
-
-# View the model results
-print(fit)
-
-# Set up model formula with random intercepts for each participant
-model <- lmer(totaltime ~ treatment + (1|participant), data = visualsearch_combined_df)
-
-# Fit the model
-fit <- summary(model)
-
-# View the model results
-print(fit)
-
+for (task in tasks) {
+  print(cat("\n\n", task, "\n\n", sep = ""))
+  
+  #Set up model formula with random intercepts for each participant
+  
+  if (task %in% c("gonogo", "nback")){
+    model <- lmer(dprime ~ treatment + (1|participant), data = get(paste0(task, "_combined_df")))
+  } else {
+    model <- lmer(totaltime ~ treatment + (1|participant), data = get(paste0(task, "_combined_df")))
+  }
+  
+  # Fit the model
+  fit <- summary(model)
+  
+  # View the model results
+  print(fit)
+}
