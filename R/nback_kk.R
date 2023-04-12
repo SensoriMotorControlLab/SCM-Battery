@@ -3,7 +3,7 @@
 usefirst <- TRUE
 
 # how many lines should be in a data file? (there may be multiple correct options)
-nlines <- c(183,190)
+nlines <- c(183)
 
 nback <- function(filename) {
   
@@ -17,69 +17,39 @@ nback <- function(filename) {
   thisOS <- df$OS[1]
   
   # remove break lines:
-  df <- df[which(!is.na(df$trials.thisN)),]
-  
-  if ('reactiontime' %in% names(df)) {   # new file format
-    
-    medRT <- median(df$reactiontime, na.rm=TRUE)
-    if (!is.na(medRT) & medRT < 0) {
-      df$reactiontime[!is.na(df$reactiontime)] <- df$reactiontime[!is.na(df$reactiontime)] + 1
-    }
-    
-    # remove initial non-response trials:
-    df <- df[which(df$use == 1),]
-    
-    # set up column for correct responses:
-    df$response <- as.numeric(df$response) # first get the response column in shape
-    df$response[which(is.nan(df$response))] <- NA
-    df$correct <- NA
-    # idx <- which(!is.na(df$response))      
-    df$correct <- (df$response == df$target)
-    
-    
-  } else {  # old file format
-    
-    if ('trialResp.rt' %in% names(df) ) {
-      df$reactiontime <- df$trialResp.rt
-    }
-    
-    # set up column for correct responses:
-    df$correct <- (df$trialResp.keys == df$corrAns)
-    
-    # set up column to indicate if a target was presented:
-    df$target <- 0
-    df$target[which(df$corrAns == 'space')] <- 1
-    
-    df$nback <- df$trialsNum
-    
-  }
+  df <- df[which(!is.na(df$trialsNum)),]
   
   # remove very low RTs:
-  if ('reactiontime' %in% names(df)) {
-    df <- df[which(is.na(df$reactiontime) | df$reactiontime > 0.1),]
+  if ('trialResp.rt' %in% names(df)) {
+    df <- df[which(is.na(df$trialResp.rt) | df$trialResp.rt > 0.1),]
+  } else {
+    use <- FALSE
   }
   
+  # get a column indicating whether or not the response is correct:
+  df$correct <- (df$trialResp.keys == df$corrAns)
+  
+  # get a column indicating whether or not a target trial was presented:
+  df$target <- 'absent'
+  df$target[which(df$corrAns == 'space')] <- 'present'
   
   # get proportion correct for target-presence BY N-back:
-  if (dim(df)[1] > 0 & 'reactiontime' %in% names(df) & length(which(!is.na(df$correct))) > 0) {
-    
-    correct <- aggregate(correct ~ target + nback, data=df, FUN=mean)
-    
-    if ( any( correct$correct[which(correct$target == 1)] < c(0.50, 0.25, 0.01) ) ) {
-      # low performance!
+  if (dim(df)[1] > 0 & 'trialResp.rt' %in% names(df)) {
+    #print(dim(df))
+    correct <- aggregate(correct ~ target + trialsNum, data=df, FUN=mean)
+    if ( any( correct$correct[which(correct$target == 'present')] < c(0.50, 0.25, 0.01) ) ) {
       use <- FALSE
     }
-    if (dim(correct)[1] < 6) {
-      # missing performance for at least 1 condition
-      use <- FALSE
-    }
+    # if (any(correct$correct[which(correct$target == 'present')] < 0.50)) {
+    #   use <- FALSE
+    # }
   } else {
-    use <- FALSE # seriously? this happens?
+    use <- FALSE
   }
   
   if (use) {
     correctOutput <- as.vector(unlist(correct$correct))
-    names(correctOutput) <- sprintf('N%d_%s_prop.correct',correct$nback,c('absent','present')[correct$target+1])
+    names(correctOutput) <- sprintf('N%d_%s_prop.correct',correct$trialsNum,correct$target)
   } else {
     correctOutput <- rep(NA, 6)
     names(correctOutput) <- sprintf('N%d_%s_prop.correct',c(1,1,2,2,3,3),rep(c('absent','present'),3))
@@ -94,13 +64,13 @@ nback <- function(filename) {
     for (N in c(1,2,3)) {
       
       # select only data for N=N
-      Ndf <- df[which(df$nback == N),]
+      Ndf <- df[which(df$trialsNum == N),]
       
       # get the numbers of hits, misses, false alarms and correct rejections:
-      hits   <- length(which(Ndf$correct == TRUE  & Ndf$target == 1))
-      misses <- length(which(Ndf$correct == FALSE & Ndf$target == 1))
-      fas    <- length(which(Ndf$correct == FALSE & Ndf$target == 0))
-      crs    <- length(which(Ndf$correct == TRUE  & Ndf$target == 0))
+      hits   <- length(which(Ndf$correct == TRUE  & Ndf$target == 'present'))
+      misses <- length(which(Ndf$correct == FALSE & Ndf$target == 'present'))
+      fas    <- length(which(Ndf$correct == FALSE & Ndf$target == 'absent'))
+      crs    <- length(which(Ndf$correct == TRUE  & Ndf$target == 'absent'))
       
       # get dprime
       Ndpr <- dprime(hits=hits, misses=misses, fas=fas, crs=crs, hautus=TRUE)$dprime
@@ -112,15 +82,15 @@ nback <- function(filename) {
       sigdectOutput <- c(sigdectOutput, newsigdectOutput)
       
       # get RTs for hits
-      hit_idx <- which(Ndf$correct == TRUE  & Ndf$target == 1) 
+      hit_idx <- which(Ndf$correct == TRUE  & Ndf$target == 'present') 
       if (length(hit_idx) > 0) {
-        hit_RT <- mean(Ndf$reactiontime[hit_idx], na.rm=TRUE)
+        hit_RT <- mean(Ndf$trialResp.rt[hit_idx], na.rm=TRUE)
       } else {hit_RT <- NA}
       
       # get RTs for false alarms
-      fa_idx  <- which(Ndf$correct == FALSE & Ndf$target == 0)
+      fa_idx  <- which(Ndf$correct == FALSE & Ndf$target == 'absent')
       if (length(fa_idx) > 0) {
-        fa_RT <- mean(Ndf$reactiontime[fa_idx], na.rm=TRUE)
+        fa_RT <- mean(Ndf$trialResp.rt[fa_idx], na.rm=TRUE)
       } else {fa_RT <- NA}
       
       # add to output:
@@ -139,7 +109,7 @@ nback <- function(filename) {
     
   }
   
-  
+
   # create named output vector
   output <- as.list(c(correctOutput, RToutput, sigdectOutput))
   if (!use) {

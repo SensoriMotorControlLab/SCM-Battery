@@ -1,3 +1,4 @@
+# this is modified files by KK, includes and option to use file_list
 
 # we want to run functions named as a string over a bunch of participants
 
