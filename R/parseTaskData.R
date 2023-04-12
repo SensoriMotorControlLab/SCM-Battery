@@ -15,14 +15,23 @@ getGroupPerformance <- function(year, semester, task) {
   
   # get list of file names
   folder <- file.path('data',year,semester,task)
+  # print(folder)
   files <- list.files(folder,pattern='*.csv')
+  # print(length(files))
   
   # use readLines and weed out those with too few lines
   filelines <- unlist(lapply(sprintf('%s%s%s',folder,.Platform$file.sep,files), function(x){length(readLines(x))}))
+  
+  # print(filelines)
+  # print(nlines)
+  
   files <- files[which(filelines %in% nlines)]
+  
+  # print(files)
   
   # extract participant IDs and timestamps
   participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp, task)), stringsAsFactors=F)
+  # print(str(participants))
   participants <- participants[order(participants$timestamp),]
   row.names(participants) <- NULL
   
@@ -31,6 +40,8 @@ getGroupPerformance <- function(year, semester, task) {
   
   # get relative filenames:
   participants$filename <- sprintf('data/%s/%s/%s/%s_%s_%s.csv',year,semester,task,participants$participant,task,participants$timestamp)
+  
+  # print(participants$filename)
   
   # magic: this assigns a function to f, by finding a function
   # that has the name specified in the character variable task
