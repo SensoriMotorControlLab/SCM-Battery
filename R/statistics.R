@@ -41,3 +41,26 @@ cowan.k <- function(hits, misses, fas, crs, N) {
   return(K)
   
 }
+
+#This function combines RTs and PC into a combined measure termed 'Balanced
+#Integration Score' (Liesefeld, Fu, & Zimmer, 2015, JEP:LMC, 41, 1140-1151;
+#                    Liesefeld & Janczyk, in press)
+#the input dataframe must contain variables 'mean_rt_c' and 'pc'
+#the function calculates BIS with values standardized across all fields of the 
+#input and adds the field 'bis', which has the same format as 'rt' and 'pc'
+
+# from this GitHub repo: https://github.com/Liesefeld/BIS
+
+BIS <- function(data) {
+  n <- length(data$group)    # sample size to correct var()-function result (which uses n-1)
+  srt <- sqrt( ((n-1)/n) * var(data$mean_rt_c) )     # sample standard deviation across all rts
+  spc <- sqrt( ((n-1)/n) * var(data$pc) )            # sample standard deviation across all rts
+  mrt <- mean(data$mean_rt_c)                        # mean across all rts
+  mpc <- mean(data$pc)                               # mean across all pcs
+  zrt <- (data$mean_rt_c-mrt)/srt                    # standardized rts
+  zpc <- (data$pc-mpc)/spc                           # z-standardized pcs
+  data$bis <- zpc - zrt                              # Balanced Integration Score
+  
+  return(data)                                       # return data.frame with added variable 'bis'
+}
+
