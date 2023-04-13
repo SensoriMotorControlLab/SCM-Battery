@@ -41,7 +41,7 @@ getOutputFiles <- function(folder_path, Part3_or_4, t = "within") {
   # Join the two dataframes based on the id column
   df <- inner_join(result_df, Part3_or_4, by = "id")
   
-  # Filter the joined dataframe to keep only the rows where the datetime column is within 5 days of EndDate
+  # Filter the joined dataframe to keep only the rows where the datetime column is within 1 days of EndDate
   df_imm <- df %>%
     filter(datetime >= as_datetime(EndDate) - days(1),
            datetime <= as_datetime(EndDate))

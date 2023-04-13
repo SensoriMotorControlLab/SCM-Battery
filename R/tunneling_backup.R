@@ -4,28 +4,26 @@ usefirst <- TRUE
 # how many lines should be in a data file? (there may be multiple correct options)
 nlines <- c(25)
 
-## KK: optimized version using data table
 tunneling <- function(filename) {
-
+  
   use <- TRUE
   
   # first we read the data file:
-  dt <- fread(filename)
+  df <- read.csv(filename, stringsAsFactors=F)
   
-  thisparticipant <- as.character(dt$participant[1])
-  thistotaltime <- dt$cumulativetime[dim(dt)[1]]
-  thisOS <- dt$OS[1]
-  
+  thisparticipant <- as.character(df$participant[1])
+  thistotaltime <- df$cumulativeTime[dim(df)[1]]
+  thisOS <- df$OS[1]
   
   scale <- intrack <- time_s <- c()
   
-  for (rowidx in c(1:dim(dt)[1])) {
+  for (rowidx in c(1:dim(df)[1])) {
     
-    step        <- convertCellToNumVector(dt$step[rowidx])
-    inOrOut     <- convertCellToNumVector(dt$inOrOut[rowidx])
-    mousetime   <- convertCellToNumVector(dt$trialMouse.time[rowidx])
-    trackScaleX <- dt$trackScaleX[rowidx]
-    trackScaleY <- dt$trackScaleY[rowidx]
+    step        <- convertCellToNumVector(df$step[rowidx])
+    inOrOut     <- convertCellToNumVector(df$inOrOut[rowidx])
+    mousetime   <- convertCellToNumVector(df$trialMouse.time[rowidx])
+    trackScaleX <- df$trackScaleX[rowidx]
+    trackScaleY <- df$trackScaleY[rowidx]
     
     if (trackScaleY == trackScaleX) {
       scale <- c(scale, abs(trackScaleX)*100)

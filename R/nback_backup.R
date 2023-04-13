@@ -9,6 +9,8 @@ nback <- function(filename) {
   
   use <- TRUE
   
+  print(filename)
+  
   # first we read the data file:
   df <- read.csv(filename, stringsAsFactors=F)
   

@@ -4,61 +4,64 @@ usefirst <- TRUE
 # how many lines should be in a data file? (there may be multiple correct options)
 nlines <- c(6)
 
-
-trailmaking <- function(filename) {
+## KK: optimized function using data table
+## improved from many hours
+## to 118.260000000002 seconds
+trailMaking <- function(filename) {
   
   use <- TRUE
   
   # first we read the data file:
-  df <- read.csv(filename, stringsAsFactors=F)
+  dt <- fread(filename)
   
-  thisparticipant <- as.character(df$participant[1])
-  thistotaltime <- df$cumulativetime[dim(df)[1]]
-  thisOS <- df$OS[1]
+  thisparticipant <- as.character(dt$participant[1])
+  thistotaltime <- df$cumulativetime[dim(dt)[1]]
+  thisOS <- dt$OS[1]
   
-  TMdata <- c()
-  MT <- list('MoveTime_1'=c(),  'MoveTime_2'=c(),    'MoveTime_3'=c(),   'MoveTime_4'=c(),   'MoveTime_5'=c())
-  PL <- list('PathLength_1'=c(), 'PathLength_2'=c(), 'PathLength_3'=c(), 'PathLength_4'=c(), 'PathLength_5'=c())
-  SP <- list('ShortPath_1'=c(),  'ShortPath_2'=c(),  'ShortPath_3'=c(),  'ShortPath_4'=c(),  'ShortPath_5'=c())
-
-  for (trialno in c(1:5)) {
-    
-    # this is where the stimuli are:
-    stimX <- convertCellToNumVector(df$stimulusX[trialno])
-    stimY <- convertCellToNumVector(df$stimulusY[trialno])
-    # shortest path from first to last stimulus in order:
-    shortest_route <- sum(sqrt(diff(stimX)^2 + diff(stimY)^2 ))
-    # store:
-    SP[[trialno]] <- c(SP[[trialno]], shortest_route)
-
-    # this is the actual path:
-    x <- convertCellToNumVector(df$trialMouse.x[trialno])
-    y <- convertCellToNumVector(df$trialMouse.y[trialno])
-    s <- convertCellToNumVector(df$trialMouse.time[trialno])
-    step <- convertCellToNumVector(df$step[trialno])
-    # but we only count from the point the participants reaches the first position
-    # which is when step == 1
-    start.idx <- which(step == 1)[1]
-    
-    x <- x[start.idx:length(x)]
-    y <- y[start.idx:length(y)]
-    s <- s[start.idx:length(s)]
-    
-    path_length <- sum(sqrt(diff(x)^2 + diff(y)^2))
-    
-    movement_time <- s[length(s)]-s[1]
-    
-    TMdata[sprintf('MoveTime_%d',trialno)] <- movement_time
-    TMdata[sprintf('PathLength_%d',trialno)] <- path_length
-    TMdata[sprintf('ShortestPath_%d',trialno)] <- shortest_route
-    TMdata[sprintf('TimePerLength_%d',trialno)] <- movement_time / path_length
-    
+  # Convert stimulus columns to numeric vectors
+  stimX <- lapply(dt$stimulusX, convertCellToNumVector)
+  stimY <- lapply(dt$stimulusY, convertCellToNumVector)
+  
+  SP <- c()
+  
+  # Calculate shortest path and store in SP list
+  for (i in 1:5) {
+    shortest_route <- sum(sqrt(diff(stimX[[i]])^2 + diff(stimY[[i]])^2 ))
+    SP[[i]] <- shortest_route
   }
   
-  #print(thisparticipant)
+  # Extract trial columns and calculate metrics
+  trialMouseX <- lapply(dt$trialMouse.x, convertCellToNumVector)
+  trialMouseY <- lapply(dt$trialMouse.y, convertCellToNumVector)
+  trialMouseTime <- lapply(dt$trialMouse.time, convertCellToNumVector)
+  step <- lapply(dt$step, convertCellToNumVector)
+  
+  # Calculate path length, movement time, and other variables for each trial
+  path_lengths <- sapply(seq_along(trialMouseX), function(trialno) {
+    start.idx <- which(step[[trialno]] == 1)[1]
+    x <- trialMouseX[[trialno]][start.idx:length(trialMouseX[[trialno]])]
+    y <- trialMouseY[[trialno]][start.idx:length(trialMouseY[[trialno]])]
+    sum(sqrt(diff(x)^2 + diff(y)^2))
+  })
+  
+  movement_times <- sapply(seq_along(trialMouseTime), function(trialno) {
+    start.idx <- which(step[[trialno]] == 1)[1]
+    s <- trialMouseTime[[trialno]][start.idx:length(trialMouseTime[[trialno]])]
+    tail(s, 1) - s[1]
+  })
+  
+  shortest_paths <- unlist(SP)
+  
+  time_per_lengths <- movement_times / path_lengths
+  
+  # Combine trial data into a vector
+  TMdata_new <- c(movement_times, path_lengths, shortest_paths, time_per_lengths)
+  names(TMdata_new) <- paste(rep(c('MoveTime', 'PathLength', 'ShortestPath', 'TimePerLength'), 
+                                 each = 5), rep(1:5, times = 4), sep = '_')
+  
   
   # create named output vector
-  output <- as.list(TMdata)
+  output <- as.list(TMdata_new)
   if (!use) {
     output[1:length(output)] <- NA
   }

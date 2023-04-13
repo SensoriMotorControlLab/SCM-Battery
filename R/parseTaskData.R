@@ -21,13 +21,14 @@ getGroupPerformance <- function(year, semester, task, file_list = list()) {
   } else {
     files <- file_list
   }
-  
+
   # use readLines and weed out those with too few lines
   filelines <- unlist(lapply(sprintf('%s%s%s',folder,.Platform$file.sep,files), function(x){length(readLines(x))}))
   files <- files[which(filelines %in% nlines)]
   
   # extract participant IDs and timestamps
   # participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp, task)), stringsAsFactors=F)
+  # KK: strings separated by tasknames b/c there are unusual IDs
   participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp_KK, task)), stringsAsFactors=F)
   participants <- participants[order(participants$timestamp),]
   row.names(participants) <- NULL
@@ -47,7 +48,7 @@ getGroupPerformance <- function(year, semester, task, file_list = list()) {
   # (that has the same name as the task)
   # needs to have the same name as the task
   f <- match.fun(task)
-  
+
   # and use lapply to run stuff on all participants
   functionoutput <- as.data.frame(do.call("rbind", lapply(participants$filename, f)))
   
@@ -76,9 +77,15 @@ getIDtimestamp <- function(filename, task) {
 
 getIDtimestamp_KK <- function(filename, task) {
   
-  substrings <- strsplit(filename, "_")[[1]]
+  if (task == "taskswitching"){
+    task = "task-switching"
+  } else if (task == "tunneling"){
+    task = "TunnelingTask"
+  }
   
-  return(c('participant'=substrings[1], 'task'=substrings[2], 'timestamp'=paste(substrings[3], substrings[4], sep = "_")))
+  substrings <- strsplit(filename, task)[[1]]
+  
+  return(c('participant'=substr(substrings[1], 1, nchar(substrings[1])-1), 'task'=task, 'timestamp'=substr(substrings[2], 2, nchar(substrings[2]))))
   
 }
 

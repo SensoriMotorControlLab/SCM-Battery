@@ -6,7 +6,7 @@ usefirst <- TRUE
 nlines <- c(165)
 
 visualsearch <- function(filename) {
-  
+
   # first we read the data file:
   df <- read.csv(filename, stringsAsFactors=F)
   
@@ -41,6 +41,11 @@ visualsearch <- function(filename) {
     #print(filename)
     use = FALSE
     #cat('removed because of low performance\n')
+  }
+  
+  # KK: if not enough good trials return nothing b/c models won't run
+  if (!use) {
+    return()
   }
   
   # get proportion correct scores to data:

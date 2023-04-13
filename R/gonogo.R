@@ -6,7 +6,7 @@ usefirst <- TRUE
 nlines <- c(303)
 
 gonogo <- function(filename) {
-  
+
   use <- TRUE
 
   # first we read the data file:

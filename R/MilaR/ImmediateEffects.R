@@ -2,9 +2,9 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(lubridate)
-install.packages("lme4", dependencies=TRUE)
+# install.packages("lme4", dependencies=TRUE)
 library(lme4)
-install.packages("lmerTest", dependencies=TRUE)
+# install.packages("lmerTest", dependencies=TRUE)
 library(lmerTest)
 
 # load helpers
