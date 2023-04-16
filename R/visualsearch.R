@@ -91,6 +91,8 @@ visualsearch <- function(filename) {
   output[['OS']]              <- thisOS
   output[['passedscreening']] <- use
   
+  ## KK: date to distinguish double participations
+  output[['date']] <- df$date[1]
   
   # return to caller:
   return(output)

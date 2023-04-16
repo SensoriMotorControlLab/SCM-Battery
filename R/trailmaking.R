@@ -73,6 +73,9 @@ trailMaking <- function(filename) {
   output[['OS']]              <- thisOS
   output[['passedscreening']] <- use
   
+  ## KK: date to distinguish double participations
+  output[['date']] <- dt$date[1]
+  
   return(output)
   
 }

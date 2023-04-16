@@ -8,6 +8,7 @@ library(lme4)
 library(lmerTest)
 
 library(data.table)
+library(lubridate)
 
 # load helpers
 source('R/parseTaskData.R')
@@ -34,9 +35,48 @@ for (task in tasks) {
 
 ## next: adding timestamps to output
 
+# list of data frames
+df_list <- list(gonogo_df, visualsearch_df, taskswitching_df, 
+                tunneling_df, trailMaking_df, nBack_df)
+
+# iterate over data frames and modify date column
+df_list <- lapply(df_list, function(df) {
+  df$date_1 <- as.POSIXct(df$date, format = "%Y-%m-%d_%Hh%M.%S.%OS")
+  return(df)
+})
+
+for (i in seq_along(df_list)) {
+  write.csv(df_list[[i]], file.path("data", paste0("df_", tasks[i], ".csv")), row.names = FALSE)
+}
+
+
 #### create data based on Assel's ####
 
 source('R/MilaR/CleaningQ1.R')
+
+#### creating codebook for q1 ####
+
+# create data frame with column names, numbers, and values
+col_info <- data.frame(
+  num = 1:ncol(q1),
+  name = names(q1),
+  values = sapply(q1, function(x) paste(unique(x), collapse = ", "))
+)
+
+# write to csv file
+write.csv(col_info, "data/codebook/q1_codebook.csv", row.names = FALSE)
+
+col_info <- data.frame(
+  num = 1:ncol(q2),
+  name = names(q2),
+  values = sapply(q2, function(x) paste(unique(x), collapse = ", "))
+)
+
+# write to csv file
+write.csv(col_info, "data/codebook/q2_codebook.csv", row.names = FALSE)
+
+
+#### using q1 ####
 
 # calculate use frequency
 # 7: daily
@@ -68,6 +108,8 @@ q1 <- q1 %>% mutate(cannabis_group = cannabis_freqnum,
                     cannabis_group = case_when(cannabis_freqnum == 0 ~ "Non-users",
                                                cannabis_freqnum > 5 ~ "Frequent users",
                                                TRUE ~ "Infrequent users"))
+
+## next: figure out how to combine using date information
 
 #### merging with tasks ####
 

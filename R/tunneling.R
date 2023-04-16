@@ -52,6 +52,9 @@ tunneling <- function(filename) {
   output[['OS']]              <- thisOS
   output[['passedscreening']] <- use # although there is no real screening implemented yet...
   
+  ## KK: date to distinguish double participations
+  output[['date']] <- dt$date[1]
+  
   return(output)
   
 }
