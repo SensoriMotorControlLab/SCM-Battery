@@ -125,6 +125,12 @@ merged_df_gonogo  <- merged_df_gonogo %>%
   group_by(id) %>%
   slice(which.min(date_diff))
 
+## testing the demogr
+
+merged_df_gonogo  <- merge(df_combined %>%
+  select(id, cannabis_freqnum, cannabis_group, sex, physically_activity,
+         video_games, music, year_of_birth), merged_df_gonogo, by = c("id"))
+
 #### visual search ####
 
 df_high <- getGroupPerformance("2023", "fall", "visualsearch")
@@ -143,6 +149,12 @@ merged_df_vs  <- merged_df_vs  %>%
 merged_df_vs  <- merged_df_vs %>%
   group_by(id) %>%
   slice(which.min(date_diff))
+
+## merging with demographic
+
+merged_df_vs  <- merge(df_combined %>%
+       select(id, cannabis_freqnum, cannabis_group, sex, physically_activity,
+              video_games, music, year_of_birth), merged_df_vs, by = c("id"))
 
 #### taskswitching ####
 
@@ -163,6 +175,12 @@ merged_df_taskswitching  <- merged_df_taskswitching %>%
   group_by(id) %>%
   slice(which.min(date_diff))
 
+## merge with demographic
+
+merged_df_taskswitching  <- merge(df_combined %>%
+        select(id, cannabis_freqnum, cannabis_group, sex, physically_activity,
+               video_games, music, year_of_birth), merged_df_taskswitching, by = c("id"))
+
 #### tunneling ####
 
 df_high <- getGroupPerformance("2023", "fall", "tunneling")
@@ -181,6 +199,12 @@ merged_df_tunneling  <- merged_df_tunneling  %>%
 merged_df_tunneling  <- merged_df_tunneling %>%
   group_by(id) %>%
   slice(which.min(date_diff))
+
+## merge with demographic
+
+merged_df_tunneling  <- merge(df_combined %>%
+        select(id, cannabis_freqnum, cannabis_group, sex, physically_activity,
+               video_games, music, year_of_birth), merged_df_tunneling, by = c("id"))
 
 #### trailMaking ####
 
@@ -201,8 +225,15 @@ merged_df_trailmaking  <- merged_df_trailmaking %>%
   group_by(id) %>%
   slice(which.min(date_diff))
 
+## merging with demographic
+
+merged_df_trailmaking  <- merge(df_combined %>%
+        select(id, cannabis_freqnum, cannabis_group, sex, physically_activity,
+               video_games, music, year_of_birth), merged_df_trailmaking, by = c("id"))
+
 #### nBack ####
 
+## not yet
 
 # Perform linear regression
 model <- lm(dprime ~ how_high, data = merged_df_gonogo)
