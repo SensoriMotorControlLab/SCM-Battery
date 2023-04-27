@@ -15,13 +15,12 @@ taskswitching <- function(filename) {
   thistotaltime <- df$cumulativetime[dim(df)[1]]
   thisOS <- df$OS[1]
   
-  
-  if (dim(df)[1]==77) {
+  if (dim(df)[1]==76) {
     # remove lines for breaks:
     df <- df[-which(is.na(df$dots)),]
     block <- c(rep(1,12), rep(2,12), rep(3,50))
   }
-  if (dim(df)[1]==77) {
+  if (dim(df)[1]==102) {
     # remove lines for breaks:
     df <- df[-which(is.na(df$dots)),]
     block <- c(rep(1,12), rep(2,12), rep(3,50), rep(4,12), rep(5,12))
@@ -113,10 +112,10 @@ taskswitching <- function(filename) {
   
   #correct response output for switch vs.non-switch trials  
   correctOutput <- as.vector(unlist(correct$correctResponse))
-  names(correctOutput) <- sprintf('switch_%s_prop.correct',correct$switch)
+  names(correctOutput) <- sprintf('switch_%s_prop.correct',as.numeric(correct$switch))
   
   congruentOutput <- as.vector(unlist(congruent$correctResponse))
-  names(congruentOutput) <- sprintf('congruent_%s_prop.correct', congruent$congruent)
+  names(congruentOutput) <- sprintf('congruent_%s_prop.correct', as.numeric(congruent$congruent))
   
   # data frame for single trials 
   
