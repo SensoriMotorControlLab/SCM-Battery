@@ -16,10 +16,12 @@ taskswitching <- function(filename) {
   thistotaltime <- dt$cumulativetime[dim(dt)[1]]
   thisOS <- dt$OS[1]
   
-  if (dim(df)[1]==76) {
+  if (dim(dt)[1]==76) {
+    dt <- dt[-which(is.na(dt$dots)),]
     dt <- dt %>%
       mutate(block = c(rep(1,12), rep(2,12), rep(3,50)))
-  }else if (dim(df)[1]==102) {
+  }else if (dim(dt)[1]==102) {
+    dt <- dt[-which(is.na(dt$dots)),]
     dt <- dt %>%
       mutate(block = c(rep(1,12), rep(2,12), rep(3,50), rep(4,12), rep(5,12)))
   }
