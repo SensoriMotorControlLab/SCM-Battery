@@ -34,22 +34,22 @@ taskswitching <- function(filename) {
   
   ## KK: simplify applied functions for correct response and conguence
   dt$correctResponse <- apply(dt[,c('correctAnswer','key_resp.keys')], 1, function(x) as.numeric(x[1] == x[2]))
-  dt$congruent <- apply(dt[,c('shape','dots')], 1, function(x) as.numeric((x[1] == 'diamond' & x[2] == ' 2') | (x[1] == 'square' & x[2] == ' 3')))
+  dt$congruent <- apply(dt[,c('shape','dots')], 1, function(x) as.numeric((x[1] == 'diamond' & x[2] == '2') | (x[1] == 'square' & x[2] == '3')))
   
-  ## optimized
-  online_string_to_array <- function(str_array) {
-    x <- str_sub(str_array, 2, str_length(str_array)-1)
-    x <- unlist(str_split(x, ','))
-    as.numeric(x[2])
+  ## new
+  dt$grid_loc_y <- NA
+  dt$switch <- NA
+  for (block in unique(dt$block)) {
+    
+    trial_idx <- which(dt$block == block)
+    
+    for (trial in trial_idx) {
+      dt$grid_loc_y[trial] <- convertCellToNumVector(dt$gridLocation[trial])[2]
+    }
+    
+    dt$switch[trial_idx[2:length(trial_idx)]] <- as.logical(diff(dt$grid_loc_y[trial_idx]))
+    
   }
-  
-  dt$grid_loc_y <- apply(dt[,'gridLocation', drop=F], 
-                         1, FUN = online_string_to_array)
-  
-  dt <- dt %>% 
-    mutate(grid_diff = lag(grid_loc_y) + grid_loc_y,
-           switch = as.numeric(ifelse(grid_diff == 0, 1, 0))) %>% 
-    select(-grid_diff, -contains("phase"))
   
   
   # get proportion correct scores to data for switch/non-switch trials:
@@ -116,7 +116,7 @@ taskswitching <- function(filename) {
   
   
   # get RTs for switch trials
-  switch_idx <- which(dt$correctResponse == 1  & dt$switch == 1 & dt$block == 3) 
+  switch_idx <- which(dt$correctResponse == 1  & dt$switch == TRUE & dt$block == 3) 
   if (length(switch_idx) > 0) {
     switch_RT <- mean(dt$key_resp.rt[switch_idx], na.rm=TRUE)
   } else {switch_RT <- NA}
@@ -127,7 +127,7 @@ taskswitching <- function(filename) {
   
   
   # get RTs for non-switch trials
-  nonswitch_idx <- which(dt$correctResponse == 1  & dt$switch == 0 & dt$block == 3) 
+  nonswitch_idx <- which(dt$correctResponse == 1  & dt$switch == FALSE & dt$block == 3) 
   if (length(nonswitch_idx) > 0) {
     nonswitch_RT <- mean(dt$key_resp.rt[nonswitch_idx], na.rm=TRUE)
   } else {nonswitch_RT <- NA}
