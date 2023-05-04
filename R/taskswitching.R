@@ -16,8 +16,13 @@ taskswitching <- function(filename) {
   thistotaltime <- dt$cumulativetime[dim(dt)[1]]
   thisOS <- dt$OS[1]
   
-  dt <- dt %>%
-    mutate(block = c(rep(1,13), rep(2,13), rep(3,50)))
+  if (dim(df)[1]==76) {
+    dt <- dt %>%
+      mutate(block = c(rep(1,12), rep(2,12), rep(3,50)))
+  }else if (dim(df)[1]==102) {
+    dt <- dt %>%
+      mutate(block = c(rep(1,12), rep(2,12), rep(3,50), rep(4,12), rep(5,12)))
+  }
   
   
   # remove very low RTs:
@@ -61,10 +66,10 @@ taskswitching <- function(filename) {
   
   #correct response output for switch vs.non-switch trials  
   correctOutput <- as.vector(unlist(correct$correctResponse))
-  names(correctOutput) <- sprintf('switch_%s_prop.correct',correct$switch)
+  names(correctOutput) <- sprintf('switch_%s_prop.correct',as.numeric(correct$switch))
   
   congruentOutput <- as.vector(unlist(congruent$correctResponse))
-  names(congruentOutput) <- sprintf('congruent_%s_prop.correct', congruent$congruent)
+  names(congruentOutput) <- sprintf('congruent_%s_prop.correct', as.numeric(congruent$congruent))
   
   # data frame for single trials 
   singledf <- dt[c(4:12, 17:25 ),]
