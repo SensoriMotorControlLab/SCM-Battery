@@ -233,6 +233,29 @@ merged_df_trailmaking  <- merge(df_combined %>%
 
 #### nBack ####
 
+df_high <- getGroupPerformance("2023", "fall", "nBack")
+
+df_high$date_1 <- as.POSIXct(df_high$date, format = "%Y-%m-%d_%Hh%M.%S.%OS")
+df_high$date_date <- as.Date(df_high$date_1)
+df_high$id <- df_high$participant
+merged_df_nback <- merge(df, df_high, by = c("id"))
+
+merged_df_nback <- merged_df_nback %>%
+  mutate(date_diff = abs(date_date.x - date_date.y))
+
+merged_df_nback  <- merged_df_nback  %>%
+  filter(abs(date_date.x - date_date.y) <= 1)
+
+merged_df_nback  <- merged_df_nback %>%
+  group_by(id) %>%
+  slice(which.min(date_diff))
+
+## merging with demographic
+
+merged_df_nback  <- merge(df_combined %>%
+                                  select(id, cannabis_freqnum, cannabis_group, sex, physically_activity,
+                                         video_games, music, year_of_birth), merged_df_nback, by = c("id"))
+
 ## not yet
 
 # Perform linear regression

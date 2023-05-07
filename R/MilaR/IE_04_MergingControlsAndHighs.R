@@ -42,3 +42,12 @@ merged_df_trailmaking <- mutate(merged_df_trailmaking, group = "experimental")
 
 # combine data frames
 trailmaking <- rbind(merged_df_trailmaking_control, merged_df_trailmaking)
+
+#### combine nback ####
+
+# add group identifier column
+merged_df_nback_control <- mutate(merged_df_nback_control, group = "control")
+merged_df_nback <- mutate(merged_df_nback, group = "experimental")
+
+# combine data frames
+nback <- rbind(merged_df_nback_control, merged_df_nback)

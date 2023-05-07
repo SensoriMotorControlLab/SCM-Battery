@@ -14,7 +14,7 @@ source('R/MilaR/helper.R')
 
 #### Cleaning the tasks data, Loading to dataframes ####
 
-tasks <- c("gonogo", "visualsearch", "taskswitching", "tunneling", "trailMaking", "nBack")
+tasks <- c("gonogo", "visualsearch", "tunneling", "trailMaking", "nBack")
 
 for (task in tasks) {
   start_time <- system.time({
