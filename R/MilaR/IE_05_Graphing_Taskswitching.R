@@ -157,7 +157,14 @@ ggplot(ts, aes(x = tasks, y = RT, fill = users)) +
                width = 0.25, position = position_dodge(width = 0.9)) + 
   geom_boxplot(position = position_dodge(width = 0.9), width = 0.7) +
   labs(title = "Task Switching", x = "Tasks", y = "Mean") +
-  scale_fill_manual(values = c("Non-users" = "#f8766d", "Infrequent users" = "#7caeff", "Frequent users" = "#00ba38", "High users" = "#c77cff")) +
+  scale_fill_manual(values = c("Non-users" = "#f8766d", 
+                               "Infrequent users" = "#7caeff", 
+                               "Frequent users" = "#00ba38", 
+                               "High users" = "#c77cff"),
+                    labels=c(paste0("Non-User\n (n=", table(taskswitching$users)["Non-users"][[1]], ")"), 
+                             paste0("Infrequent User\n (n=", table(taskswitching$users)["Infrequent users"][[1]], ")"), 
+                             paste0("Frequent Users\n (n=", table(taskswitching$users)["Frequent users"][[1]], ")"), 
+                             paste0("High users\n (n=", table(taskswitching$users)["High users"][[1]], ")"))) +
   theme_bw() + 
   theme(legend.position = "bottom", axis.title.y = element_text(face = "bold"),
         plot.title = element_text(face = "bold"),
