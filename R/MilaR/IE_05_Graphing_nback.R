@@ -158,7 +158,14 @@ ggplot(nb, aes(x = tasks, y = dprime, fill = users)) +
                width = 0.25, position = position_dodge(width = 0.9)) + 
   geom_boxplot(position = position_dodge(width = 0.9), width = 0.7) +
   labs(title = "N-Back", x = "Tasks", y = "dprime") +
-  scale_fill_manual(values = c("Non-users" = "#f8766d", "Infrequent users" = "#7caeff", "Frequent users" = "#00ba38", "High users" = "#c77cff")) +
+  scale_fill_manual(values = c("Non-users" = "#f8766d", 
+                               "Infrequent users" = "#7caeff", 
+                               "Frequent users" = "#00ba38", 
+                               "High users" = "#c77cff"),
+                    labels=c(paste0("Non-User\n (n=", table(nback$users)["Non-users"][[1]], ")"), 
+                             paste0("Infrequent User\n (n=", table(nback$users)["Infrequent users"][[1]], ")"), 
+                             paste0("Frequent Users\n (n=", table(nback$users)["Frequent users"][[1]], ")"), 
+                             paste0("High users\n (n=", table(nback$users)["High users"][[1]], ")"))) +
   theme_bw() + 
   theme(legend.position = "bottom", axis.title.y = element_text(face = "bold"),
         plot.title = element_text(face = "bold"),
