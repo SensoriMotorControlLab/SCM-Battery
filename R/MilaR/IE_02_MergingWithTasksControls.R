@@ -75,6 +75,18 @@ merged_df_trailmaking_control  <- merged_df_trailmaking_control %>%
 
 #### nBack ####
 
+merged_df_nback_control <- merge(df_combined, df_list[[6]], by = c("id"))
+
+merged_df_nback_control <- merged_df_nback_control %>%
+  mutate(date_diff = abs(date_date.x - date_date.y))
+
+merged_df_nback_control  <- merged_df_nback_control  %>%
+  filter(abs(date_date.x - date_date.y) <= 1)
+
+merged_df_nback_control  <- merged_df_nback_control %>%
+  group_by(id) %>%
+  slice(which.min(date_diff))
+
 
 # Perform linear regression
 model <- lm(dprime ~ cannabis_group, data = merged_df_gonogo_control)
