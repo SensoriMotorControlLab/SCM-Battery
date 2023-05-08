@@ -29,7 +29,7 @@ library(tidyr)
 
 #### nback ####
 
-## filter those that didn't pass the screening (n = 100, removed)
+## filter those that didn't pass the screening (n = 103, removed)
 nback <- nback %>%
   filter(passedscreening == TRUE)
 
@@ -43,17 +43,12 @@ nback <- nback %>%
            TRUE ~ "Infrequent users"
          ))
 
-# identify high users using information about the group
-nback$users <- ifelse(nback$group == "experimental", "High users", nback$users)
-
-
 # fill used by down
 nback <- nback %>% 
   group_by(id) %>% 
   fill(sex, physically_activity, stressed, video_games, sleep_last, 
        concussion, music, year_of_birth, cannabis_group,
-       N1_dprime, N2_dprime, N3_dprime,
-       passedscreening,  cannabis_freqnum, .direction = "downup")
+       cannabis_freqnum, .direction = "downup")
 
 nback  %>%
   group_by(users) %>%

@@ -50,8 +50,7 @@ gonogo <- gonogo %>%
   group_by(id) %>% 
   fill(sex, physically_activity, stressed, video_games, sleep_last, 
        concussion, music, year_of_birth, cannabis_group,
-       go_prop.error, go_RT, nogo_RT, dprime, sensitivity, totaltime, 
-      passedscreening,  cannabis_freqnum, .direction = "downup")
+       cannabis_freqnum, .direction = "downup")
 
 gonogo  %>%
   group_by(users) %>%
@@ -162,7 +161,8 @@ ggplot(gonogo, aes(x = users, y = dprime)) +
   geom_jitter(aes(col = users), height = 0, width = 0.05, alpha = 0.3) +
   stat_summary(fun.y=mean, geom="point", shape=20, size=5, color="red", fill="red") +
   labs(title = "Go/No-Go", x = "",
-       subtitle = bquote(ANOVA[BF] ~ ": " ~ BF[10] ~ " = 0.60, " ~ R[Bayesian]^2 ~ " = 0.02, " ~ "95% CI = [0.00, 0.04]")) + 
+       #subtitle = bquote(ANOVA[BF] ~ ": " ~ BF[10] ~ " = 0.60, " ~ R[Bayesian]^2 ~ " = 0.02, " ~ "95% CI = [0.00, 0.04]")
+       ) + 
   scale_x_discrete(labels=c(paste0("Non-User\n (n=", table(gonogo$users)["Non-users"][[1]], ")"), 
                             paste0("Infrequent User\n (n=", table(gonogo$users)["Infrequent users"][[1]], ")"), 
                             paste0("Frequent Users\n (n=", table(gonogo$users)["Frequent users"][[1]], ")"), 
@@ -200,78 +200,4 @@ ggplot(gonogo, aes(x = users, y = dprime)) +
     y.position = c(5.8, 6.2, 6.6)
   )
   
-
-#### prepare descriptive table ####
-
-tbl_svysummary <-
-  survey::svydesign(~1, data = gonogo) %>%
-  tbl_svysummary(by = users, percent = "column",
-                 include = c(sex, video_games, concussion,
-                             year_of_birth, physically_activity,
-                             stressed, go_prop.error, nogo_prop.error,
-                             go_RT, nogo_RT,
-                             dprime, sensitivity, totaltime),
-                 type = list(year_of_birth ~ 'continuous',
-                             physically_activity ~ 'continuous',
-                             stressed ~ 'continuous',
-                             go_prop.error ~ 'continuous',
-                             nogo_prop.error ~ 'continuous',
-                             go_RT ~ 'continuous',
-                             nogo_RT ~ 'continuous',
-                             dprime ~ 'continuous',
-                             sensitivity ~ 'continuous', 
-                             totaltime ~ 'continuous'),
-                 statistic = list(all_continuous() ~ "{mean} ({sd})",
-                                   all_categorical() ~ "{n} ({p}%)"),
-                  digits = list(all_continuous() ~ 3,
-                                all_categorical() ~ 0)) %>%
-  modify_caption("Table 1. Descriptive Statistics") %>%
-  as_flex_table()
-
-tbl_svysummary
-
-#### saving output in a Word document ####
-
-save_as_docx(tbl_svysummary, path = "data/output/Table_1.docx")
-
-#### gonogo model ####
-
-# Perform linear regression
-model1 <- lm(dprime ~ users, data = gonogo)
-model2 <- lm(dprime ~ users + sex + year_of_birth, data = gonogo)
-model3 <- lm(dprime ~ users + sex + year_of_birth + 
-               video_games + concussion + physically_activity + stressed,
-             data = gonogo)
-
-summ(model1)
-summ(model2)
-summ(model3)
-plot_summs(model1, model2, model3, plot.distributions = TRUE, inner_ci_level = 0.95)
-
-export_summs(model1, model2, model3, 
-             to.file = "docx", file.name = "data/output/Table_2.docx", number_format = "%.3g")
-
-stargazer(model, title = "Table 2. Regression Model", type="text", out = "data/output/Table_2.doc")
-
-model <- aov(dprime ~ users, data = gonogo)
-summary(model)
-
-# Perform Tukey's HSD test
-my_tukey <- TukeyHSD(model)
-
-# Print the results
-print(my_tukey)
-
-# create a table using the Tukey HSD results
-tukey_tbl <- my_tukey[[1]]
-tukey_tbl <- as.data.frame(tukey_tbl[, c(1, 4)])
-
-# Add index as column
-tukey_tbl <- tukey_tbl %>% rownames_to_column(var = "index")
-
-# create a flextable object
-flex_tbl <- flextable(tukey_tbl)
-
-# create a Word document
-save_as_docx(flex_tbl, path = "data/output/flex_tbl_1.docx")
 

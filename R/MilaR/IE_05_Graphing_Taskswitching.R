@@ -29,7 +29,7 @@ library(tidyr)
 
 #### taskswitching ####
 
-## filter those that didn't pass the screening (n = 107)
+## filter those that didn't pass the screening (n = 111)
 taskswitching <- taskswitching %>%
   filter(passedscreening == TRUE)
 
@@ -48,9 +48,7 @@ taskswitching <- taskswitching %>%
   group_by(id) %>% 
   fill(sex, physically_activity, stressed, video_games, sleep_last, 
        concussion, music, year_of_birth, cannabis_group,
-       singleblock_1_RT, singleblock_2_RT, switch_RT,
-       nonswitch_RT, congruent_RT, nonCongruent_RT, totaltime,
-       passedscreening,  cannabis_freqnum, .direction = "downup")
+       cannabis_freqnum, .direction = "downup")
 
 taskswitching  %>%
   group_by(users) %>%

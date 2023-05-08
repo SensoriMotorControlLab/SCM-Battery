@@ -46,18 +46,12 @@ visualsearch <- visualsearch %>%
            TRUE ~ "Infrequent users"
          ))
 
-# identify high users using information about the group
-visualsearch$users <- ifelse(visualsearch$group == "experimental", "High users", visualsearch$users)
-
-
 # fill used by down
 visualsearch <- visualsearch %>% 
   group_by(id) %>% 
   fill(sex, physically_activity, stressed, video_games, sleep_last, 
        concussion, music, year_of_birth, cannabis_group,
-       RT_6_absent, RT_12_absent, RT_18_absent,
-       RT_6_present, RT_12_present, RT_18_present, totaltime,
-       passedscreening,  cannabis_freqnum, .direction = "downup")
+       cannabis_freqnum, .direction = "downup")
 
 # Reorder the 'users' factor variable according to the vector above
 visualsearch$users <- factor(visualsearch$users, levels = user_order)
@@ -318,173 +312,26 @@ visualsearch %>%
 ## by correctness
 # line segment graph
 vs %>%
-  ggplot(aes(x=factor(set_size), y=mean, 
+  ggplot(aes(y=set_size, x=mean, 
              group=interaction(Present, users),
              shape = Present,
              color=users)) + 
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), 
+  geom_errorbar(aes(xmin=mean-se, xmax=mean+se), 
                 position=position_dodge(width=0.05),
                 width = 0.1) +
-  geom_line(aes(linetype = Present)) +
+  geom_path(aes(linetype = Present)) +
   geom_point(size=3) +
-  # 
-  annotate("text", x = 0.86, y = 0.93, 
-           label = expression("BF"[10]*" = 0.23"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 0.87, xend = 0.87, y = 0.9287318, yend = 0.9435268), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.87, xend = 0.88, y = 0.9287318, yend = 0.9287318), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.87, xend = 0.88, y = 0.9435268, yend = 0.9435268), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 0.89, y = 0.95, 
-           label = expression("BF"[10]*" = 0.69"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 0.9, xend = 0.9, y = 0.9287318, yend = 0.9671078), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.9, xend = 0.91, y = 0.9287318, yend = 0.9287318), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.9, xend = 0.91, y = 0.9671078, yend = 0.9671078), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 0.92, y = 0.97, 
-           label = expression("BF"[10]*" = 0.85"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 0.93, xend = 0.93, y = 0.9287318, yend = 0.9711753), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.93, xend = 0.94, y = 0.9287318, yend = 0.9287318), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.93, xend = 0.94, y = 0.9711753, yend = 0.9711753), 
-               col = "black", linewidth = 0.3) +
-  # 
-  annotate("text", x = 1.86, y = 0.915, 
-           label = expression("BF"[10]*" = 0.20"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 1.87, xend = 1.87, y = 0.9353794, yend = 0.9415488), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.87, xend = 1.88, y = 0.9353794, yend = 0.9353794), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.87, xend = 1.88, y = 0.9415488, yend = 0.9415488), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 1.89, y = 0.945, 
-           label = expression("BF"[10]*" = 0.35"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 1.9, xend = 1.9, y = 0.9353794, yend = 0.9623285), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.9, xend = 1.91, y = 0.9353794, yend = 0.9353794), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.9, xend = 1.91, y = 0.9623285, yend = 0.9623285), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 1.92, y = 0.97, 
-           label = expression("BF"[10]*" = 0.74"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 1.93, xend = 1.93, y = 0.9353794, yend = 0.9720777), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.93, xend = 1.94, y = 0.9353794, yend = 0.9353794), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.93, xend = 1.94, y = 0.9720777, yend = 0.9720777), 
-               col = "black", linewidth = 0.3) +
-  # 
-  annotate("text", x = 3.14, y = 0.925, 
-           label = expression("BF"[10]*" = 0.24"), size = 3, hjust = 0, vjust = 0) +
-  geom_segment(aes(x = 3.13, xend = 3.13, y = 0.9205301, yend = 0.9379258), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.13, xend = 3.12, y = 0.9205301, yend = 0.9205301), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.13, xend = 3.12, y = 0.9379258, yend = 0.9379258), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 3.11, y = 0.945, 
-           label = expression("BF"[10]*" = 0.64"), size = 3, hjust = 0, vjust = 0) +
-  geom_segment(aes(x = 3.1, xend = 3.1, y = 0.9205301, yend = 0.9602420), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.1, xend = 3.09, y = 0.9205301, yend = 0.9205301), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.1, xend = 3.09, y = 0.9602420, yend = 0.9602420), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 3.08, y = 0.965, 
-           label = expression("BF"[10]*" = 2.22"), size = 3, hjust = 0, vjust = 0) +
-  geom_segment(aes(x = 3.07, xend = 3.07, y = 0.9205301, yend = 0.9711445), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.07, xend = 3.06, y = 0.9205301, yend = 0.9205301), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.07, xend = 3.06, y = 0.9711445, yend = 0.9711445), 
-               col = "black", linewidth = 0.3) +
-  # 
-  annotate("text", x = 0.92, y = 0.75, 
-           label = expression("BF"[10]*" = 47.21"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 0.93, xend = 0.93, y = 0.7508683, yend = 0.8516285), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.93, xend = 0.94, y = 0.7508683, yend = 0.7508683), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.93, xend = 0.94, y = 0.8516285, yend = 0.8516285), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 0.89, y = 0.77, 
-           label = expression("BF"[10]*" = 3.99"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 0.9, xend = 0.9, y = 0.7745185, yend = 0.8516285), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.9, xend = 0.91, y = 0.7745185, yend = 0.7745185), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.9, xend = 0.91, y = 0.8516285, yend = 0.8516285), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 0.86, y = 0.79, 
-           label = expression("BF"[10]*" = 1.85"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 0.87, xend = 0.87, y = 0.7863394, yend = 0.8516285), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.87, xend = 0.88, y = 0.7863394, yend = 0.7863394), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 0.87, xend = 0.88, y = 0.8516285, yend = 0.8516285), 
-               col = "black", linewidth = 0.3) +
-  # 
-  annotate("text", x = 1.92, y = 0.68, 
-           label = expression("BF"[10]*" = 1.55"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 1.93, xend = 1.93, y = 0.6789421, yend = 0.7437192), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.93, xend = 1.94, y = 0.6789421, yend = 0.6789421), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.93, xend = 1.94, y = 0.7437192, yend = 0.7437192), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 1.89, y = 0.70, 
-           label = expression("BF"[10]*" = 0.38"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 1.9, xend = 1.9, y = 0.7062246, yend = 0.7437192), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.9, xend = 1.91, y = 0.7062246, yend = 0.7062246), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.9, xend = 1.91, y = 0.7437192, yend = 0.7437192), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 1.86, y = 0.72, 
-           label = expression("BF"[10]*" = 0.28"), size = 3, hjust = 1, vjust = 0) +
-  geom_segment(aes(x = 1.87, xend = 1.87, y = 0.7200989, yend = 0.7437192), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.87, xend = 1.88, y = 0.7200989, yend = 0.7200989), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 1.87, xend = 1.88, y = 0.7437192, yend = 0.7437192), 
-               col = "black", linewidth = 0.3) +
-  # 
-  annotate("text", x = 3.15, y = 0.66, 
-           label = expression("BF"[10]*" = 0.46"), size = 3, hjust = 0, vjust = 0) +
-  geom_segment(aes(x = 3.13, xend = 3.13, y = 0.6495817, yend = 0.6936027), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.13, xend = 3.12, y = 0.6495817, yend = 0.6495817), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.13, xend = 3.12, y = 0.6936027, yend = 0.6936027), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 3.14, y = 0.64, 
-           label = expression("BF"[10]*" = 0.53"), size = 3, hjust = 0, vjust = 0) +
-  geom_segment(aes(x = 3.1, xend = 3.1, y = 0.6443397, yend = 0.6936027), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.1, xend = 3.09, y = 0.6443397, yend = 0.6443397), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.1, xend = 3.09, y = 0.6936027, yend = 0.6936027), 
-               col = "black", linewidth = 0.3) +
-  annotate("text", x = 3.08, y = 0.62, 
-           label = expression("BF"[10]*" = 1.60"), size = 3, hjust = 0, vjust = 0) +
-  geom_segment(aes(x = 3.07, xend = 3.07, y = 0.6263485, yend = 0.6936027), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.07, xend = 3.06, y = 0.6263485, yend = 0.6263485), 
-               col = "black", linewidth = 0.3) +
-  geom_segment(aes(x = 3.07, xend = 3.06, y = 0.6936027, yend = 0.6936027), 
-               col = "black", linewidth = 0.3) +
+  stat_pvalue_manual(
+    data = bf_df_all_pc, label = "BF = {p.adj}",
+    xmin = "group_min", xmax = "group_max",
+    y.position = "y"
+  )+ 
+  scale_y_continuous(breaks = c(6,12,18))+
   theme_bw()+
-  theme(legend.position = "bottom", axis.title.y = element_text(face = "bold"),
+  theme(legend.position = "bottom", axis.title.x = element_text(face = "bold"),
         plot.title = element_text(face = "bold"),
         panel.border = element_blank())+
-  labs(title = "Visual Search", x = "")+ 
-  labs(title = "Visual Search", x = "")+ 
-  scale_y_continuous(limits = c(0.5, 1), name = "Proportion Correct") +
-  xlab("Set Size")+
+  labs(title = "Visual Search", x = "Proportion correct", y = "Set size")+ 
   scale_color_discrete(name = "Users", 
                        labels=c(paste0("Non-User\n (n=", table(visualsearch$users)["Non-users"][[1]], ")"), 
                                 paste0("Infrequent User\n (n=", table(visualsearch$users)["Infrequent users"][[1]], ")"), 

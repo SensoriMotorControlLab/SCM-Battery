@@ -31,7 +31,7 @@ library(performance)
 
 #### trailmaking ####
 
-# remove observations that didn't pass the screening
+# remove observations that didn't pass the screening (0)
 trailmaking <- trailmaking %>%
   filter(passedscreening == TRUE)
 
@@ -50,8 +50,7 @@ trailmaking <- trailmaking %>%
   group_by(id) %>% 
   fill(sex, physically_activity, stressed, video_games, sleep_last, 
        concussion, music, year_of_birth, cannabis_group,
-       MoveTime_1, MoveTime_2, MoveTime_3, MoveTime_4, MoveTime_5, 
-       passedscreening,  cannabis_freqnum, .direction = "downup")
+       cannabis_freqnum, .direction = "downup")
 
 # remove one outlier among infrequent users who took >600 time
 trailmaking <- trailmaking[trailmaking$MoveTime_1 <= 600, ]
