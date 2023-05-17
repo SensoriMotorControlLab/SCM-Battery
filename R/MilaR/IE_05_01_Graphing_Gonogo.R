@@ -33,10 +33,6 @@ library(bayestestR)
 
 #### gonogo ####
 
-# remove observations that didn't pass the screening (25)
-gonogo <- gonogo %>%
-  filter(passedscreening == TRUE)
-
 # add new category for high users
 gonogo <- gonogo %>% 
   mutate(users = cannabis_group,
@@ -110,7 +106,7 @@ for (i in 1:4) {
       bf_matrix[i,j] <- "-"
     } else {
       test <- extractBF(ttestBF(x = subset(gonogo, users == levels(gonogo$users)[i])$dprime,
-                         y = subset(gonogo, users == levels(gonogo$users)[j])$dprime))$bf
+                                y = subset(gonogo, users == levels(gonogo$users)[j])$dprime))$bf
       bf_matrix[i,j] <- round(exp(test), 2)
     }
   }
@@ -178,7 +174,7 @@ ggplot(gonogo, aes(x = users, y = dprime)) +
   stat_summary(fun.y=mean, geom="point", shape=20, size=5, color="red", fill="red") +
   labs(title = "Go/No-Go", x = "",
        #subtitle = bquote(ANOVA[BF] ~ ": " ~ BF[10] ~ " = 0.60, " ~ R[Bayesian]^2 ~ " = 0.02, " ~ "95% CI = [0.00, 0.04]")
-       ) + 
+  ) + 
   scale_x_discrete(labels=c(paste0("Non-User\n (n=", table(gonogo$users)["Non-users"][[1]], ")"), 
                             paste0("Infrequent User\n (n=", table(gonogo$users)["Infrequent users"][[1]], ")"), 
                             paste0("Frequent Users\n (n=", table(gonogo$users)["Frequent users"][[1]], ")"), 
@@ -204,16 +200,16 @@ ggplot(gonogo, aes(x = users, y = dprime)) +
   #geom_segment(aes(x = 2, xend = 4, y = 6, yend = 6), linewidth = 0.3) +
   #geom_segment(aes(x = 2, xend = 2, y = 5.9, yend = 6), linewidth = 0.3) +
   #geom_segment(aes(x = 4, xend = 4, y = 5.9, yend = 6), linewidth = 0.3) +
-  #geom_text(x = 3, y = 6.1, label = expression("BF"[10]*" = 0.73"), size = 3) +
-  #geom_segment(aes(x = 1, xend = 4, y = 6.2, yend = 6.2), linewidth = 0.3) +
-  #geom_segment(aes(x = 1, xend = 1, y = 6.1, yend = 6.2), linewidth = 0.3) +
-  #geom_segment(aes(x = 4, xend = 4, y = 6.1, yend = 6.2), linewidth = 0.3) +
-  #geom_text(x = 2.5, y = 6.3, label = expression("BF"[10]*" = 0.41"), size = 3)
-  ## custom
-  stat_pvalue_manual(
-    data = bf_df, label = "BF = {p.adj}",
-    xmin = "group1", xmax = "group2",
-    y.position = c(5.8, 6.2, 6.6)
-  )
-  
+#geom_text(x = 3, y = 6.1, label = expression("BF"[10]*" = 0.73"), size = 3) +
+#geom_segment(aes(x = 1, xend = 4, y = 6.2, yend = 6.2), linewidth = 0.3) +
+#geom_segment(aes(x = 1, xend = 1, y = 6.1, yend = 6.2), linewidth = 0.3) +
+#geom_segment(aes(x = 4, xend = 4, y = 6.1, yend = 6.2), linewidth = 0.3) +
+#geom_text(x = 2.5, y = 6.3, label = expression("BF"[10]*" = 0.41"), size = 3)
+## custom
+stat_pvalue_manual(
+  data = bf_df, label = "BF = {p.adj}",
+  xmin = "group1", xmax = "group2",
+  y.position = c(5.8, 6.2, 6.6)
+)
+
 

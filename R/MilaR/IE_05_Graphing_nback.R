@@ -76,8 +76,8 @@ for (k in c("N1_dprime", "N2_dprime", "N3_dprime")) {
       if (i == j | i > j) {
         bf_matrix[i,j] <- "-"
       } else {
-        test <- ttestBF(x = subset(nback, users == levels(nback$users)[i])[[k]],
-                        y = subset(nback, users == levels(nback$users)[j])[[k]])@numerator$`Alt., r=0.707`@analysis$bf
+        test <- extractBF(ttestBF(x = subset(nback, users == levels(nback$users)[i])[[k]],
+                        y = subset(nback, users == levels(nback$users)[j])[[k]]))$bf
         bf_matrix[i,j] <- round(exp(test), 2)
       }
     }

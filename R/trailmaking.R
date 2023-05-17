@@ -15,7 +15,7 @@ trailMaking <- function(filename) {
   dt <- fread(filename)
   
   thisparticipant <- as.character(dt$participant[1])
-  thistotaltime <- df$cumulativetime[dim(dt)[1]]
+  thistotaltime <- dt$cumulativetime[dim(dt)[1]]
   thisOS <- dt$OS[1]
   
   # Convert stimulus columns to numeric vectors

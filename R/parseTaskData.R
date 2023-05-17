@@ -24,7 +24,10 @@ getGroupPerformance <- function(year, semester, task, file_list = list()) {
 
   # use readLines and weed out those with too few lines
   filelines <- unlist(lapply(sprintf('%s%s%s',folder,.Platform$file.sep,files), function(x){length(readLines(x))}))
+  # kk: keep track of how many were deleted
+  l <- length(files)
   files <- files[which(filelines %in% nlines)]
+  print(sprintf("Deleted %d files.\n", l - length(files) ))
   
   # extract participant IDs and timestamps
   # participants <- as.data.frame(do.call("rbind", lapply(files, getIDtimestamp, task)), stringsAsFactors=F)
@@ -34,7 +37,8 @@ getGroupPerformance <- function(year, semester, task, file_list = list()) {
   row.names(participants) <- NULL
   
   # remove duplicates:
-  participants <- participants[!duplicated(participants$participant, fromLast=!usefirst),]
+  # kk: this line kills all the repeated observations so I commented it out
+  # participants <- participants[!duplicated(participants$participant, fromLast=!usefirst),]
   
   # get relative filenames:
   #participants$filename <- sprintf('data/%s/%s/%s/%s_%s_%s.csv',year,semester,task,participants$participant,task,participants$timestamp)

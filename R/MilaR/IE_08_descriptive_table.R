@@ -8,6 +8,15 @@ tbl_1 <-
                  digits = list(all_continuous() ~ 3)) %>%
   modify_caption("Table 1. Descriptive Statistics") 
 
+tbl_summary(data = gonogo, by = users, percent = "column",
+              include = c(dprime),
+              type = list(dprime ~ 'continuous'),
+              statistic = list(all_continuous() ~ "{mean} ({sd})"),
+              digits = list(all_continuous() ~ 3)) %>%
+  add_p(dprime ~ users) %>%
+  modify_caption("Table 1. Descriptive Statistics") 
+
+
 tbl_1_2 <-
   tbl_summary(data = gonogo_subset, by = group, percent = "column",
               include = c(dprime),
