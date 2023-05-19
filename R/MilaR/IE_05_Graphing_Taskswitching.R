@@ -16,7 +16,7 @@ library(jtools)
 library(broom.mixed)
 
 library(ggpubr)
-library(ggstatsplot)
+#library(ggstatsplot)
 
 library(BayesFactor)
 
@@ -30,25 +30,25 @@ library(tidyr)
 #### taskswitching ####
 
 ## filter those that didn't pass the screening (n = 111)
-taskswitching <- taskswitching %>%
-  filter(passedscreening == TRUE)
+#taskswitching <- taskswitching %>%
+#  filter(passedscreening == TRUE)
 
 # add new category for high users
 taskswitching <- taskswitching %>% 
-  mutate(users = cannabis_freqnum,
+  mutate(users = cannabis_group,
          users = case_when(
-           is.na(cannabis_freqnum) ~ "High users",
-           cannabis_freqnum == 0 ~ "Non-users",
-           cannabis_freqnum > 5 ~ "Frequent users",
-           TRUE ~ "Infrequent users"
+           group == "experimental" ~ "High users",
+           cannabis_group == "Non-users" ~ "Non-users",
+           cannabis_group == "Infrequent users" ~ "Infrequent users",
+           cannabis_group == "Frequent users" ~ "Frequent users"
          ))
 
 # fill used by down
-taskswitching <- taskswitching %>% 
-  group_by(id) %>% 
-  fill(sex, physically_activity, stressed, video_games, sleep_last, 
-       concussion, music, year_of_birth, cannabis_group,
-       cannabis_freqnum, .direction = "downup")
+#taskswitching <- taskswitching %>% 
+#  group_by(id) %>% 
+#  fill(sex, physically_activity, stressed, video_games, sleep_last, 
+#       concussion, music, year_of_birth, cannabis_group,
+#       cannabis_freqnum, .direction = "downup")
 
 taskswitching  %>%
   group_by(users) %>%
@@ -176,37 +176,3 @@ ggplot(ts, aes(x = tasks, y = RT, fill = users)) +
 
 
 
-
-
-#### prepare descriptive table ####
-
-tbl_svysummary <-
-  survey::svydesign(~1, data = taskswitching) %>%
-  tbl_svysummary(by = users,
-                 include = c(singleblock_1_RT, switch_RT, congruent_RT, totaltime),
-                 type = list(singleblock_1_RT ~ 'continuous',
-                             congruent_RT ~ 'continuous', 
-                             switch_RT ~ 'continuous', 
-                             totaltime ~ 'continuous'),
-                 statistic = list(all_continuous() ~ "{mean} ({sd})"),
-                 digits = list(all_continuous() ~ 3)) %>%
-  modify_caption("Table 1. Descriptive Statistics") %>%
-  as_flex_table()
-
-tbl_svysummary
-
-#### saving output in a Word document ####
-
-save_as_docx(tbl_svysummary, path = "data/output/Table_ts_1.docx")
-
-#### ts model ####
-
-# Perform linear regression
-model_1 <- lm(singleblock_1_RT ~ users, data = taskswitching)
-model_2 <- lm(congruent_RT ~ users, data = taskswitching)
-model_3 <- lm(switch_RT ~ users, data = taskswitching)
-
-stargazer(model_1, model_2, model_3, title = "Table 2. Regression Model", type="text", out = "data/output/Table_ts_2.doc")
-
-
-####

@@ -639,3 +639,29 @@ df_combined$sdate <- as.Date(df_combined$startdate)
 df_combined$edate <- as.Date(df_combined$enddate)
 
 #df_combined <- df_combined[df_combined$finished == "TRUE", ]
+
+
+#### filling in the unknowns by id ####
+
+## NAs instead of ""
+columns_to_process <- c("sex", "neurological_conditions", "neurological_condition_description", 
+                        "handedness", "glasses_contacts", "wearing_glasses_now", 
+                        "physically_activity", "opiates", "video_games", "used",
+                        "use_frequency", "concussion", "music")
+
+# Replace empty strings with NA for each specified column
+df_combined[columns_to_process] <- lapply(df_combined[columns_to_process], function(x) ifelse(x == "", NA, x))
+
+
+# fill in the stress by down
+df_combined <- df_combined %>% 
+  group_by(id) %>% 
+  fill(sex, stressed, age,
+       neurological_conditions, neurological_condition_description,
+       handedness, glasses_contacts, wearing_glasses_now, 
+       physically_activity, opiates, video_games, used, use_frequency,
+       concussion, music, .direction = "downup")
+
+df_combined <- df_combined[order(df_combined$id), ]
+
+df_combined <- df_combined[df_combined$id != "", ]

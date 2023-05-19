@@ -13,7 +13,7 @@ other_users <- subset(trailmaking, id %in% high_users_id & users != "High users"
 trailmaking_subset <- trailmaking[trailmaking$id %in% other_users$id, ]
 
 # Identify duplicated rows
-dup_rows <- duplicated(trailmaking_subset)
+dup_rows <- duplicated(trailmaking_subset[c("id", "group")])
 
 # Keep only the non-duplicated rows
 trailmaking_subset <- trailmaking_subset[!dup_rows, ]
@@ -71,7 +71,7 @@ trailmaking$treatment <- ifelse((trailmaking$users == "High users"), 1, ifelse((
 trailmaking_ps <- trailmaking[!is.na(trailmaking$treatment) & !is.na(trailmaking$sex), ]
 
 # Fit a propensity score model
-psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + year_of_birth, 
+psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + age, 
                  data = trailmaking_ps, family = binomial())
 
 # Compute propensity scores

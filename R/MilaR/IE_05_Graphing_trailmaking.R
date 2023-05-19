@@ -16,7 +16,7 @@ library(jtools)
 library(broom.mixed)
 
 library(ggpubr)
-library(ggstatsplot)
+#library(ggstatsplot)
 
 library(BayesFactor)
 
@@ -32,25 +32,25 @@ library(performance)
 #### trailmaking ####
 
 # remove observations that didn't pass the screening (0)
-trailmaking <- trailmaking %>%
-  filter(passedscreening == TRUE)
+#trailmaking <- trailmaking %>%
+#  filter(passedscreening == TRUE)
 
 # add new category for high users
 trailmaking <- trailmaking %>% 
-  mutate(users = cannabis_freqnum,
-         users = case_when(
-           group == "experimental" ~ "High users",
-           cannabis_freqnum == 0 ~ "Non-users",
-           cannabis_freqnum > 5 ~ "Frequent users",
-           TRUE ~ "Infrequent users",
-         ))
+    mutate(users = cannabis_group,
+           users = case_when(
+             group == "experimental" ~ "High users",
+             cannabis_group == "Non-users" ~ "Non-users",
+             cannabis_group == "Infrequent users" ~ "Infrequent users",
+             cannabis_group == "Frequent users" ~ "Frequent users"
+           ))
 
 # fill used by down
-trailmaking <- trailmaking %>% 
-  group_by(id) %>% 
-  fill(sex, physically_activity, stressed, video_games, sleep_last, 
-       concussion, music, year_of_birth, cannabis_group,
-       cannabis_freqnum, .direction = "downup")
+#trailmaking <- trailmaking %>% 
+#  group_by(id) %>% 
+#  fill(sex, physically_activity, stressed, video_games, sleep_last, 
+#       concussion, music, year_of_birth, cannabis_group,
+#       cannabis_freqnum, .direction = "downup")
 
 # remove one outlier among infrequent users who took >600 time
 trailmaking <- trailmaking[trailmaking$MoveTime_1 <= 600, ]

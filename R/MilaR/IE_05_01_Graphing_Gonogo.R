@@ -16,7 +16,7 @@ library(jtools)
 library(broom.mixed)
 
 library(ggpubr)
-library(ggstatsplot)
+#library(ggstatsplot)
 
 library(BayesFactor)
 

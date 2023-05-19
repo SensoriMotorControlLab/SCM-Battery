@@ -13,7 +13,7 @@ other_users <- subset(taskswitching, id %in% high_users_id & users != "High user
 taskswitching_subset <- taskswitching[taskswitching$id %in% other_users$id, ]
 
 # Identify duplicated rows
-dup_rows <- duplicated(taskswitching_subset)
+dup_rows <- duplicated(taskswitching_subset[c("id", "group")])
 
 # Keep only the non-duplicated rows
 taskswitching_subset <- taskswitching_subset[!dup_rows, ]
@@ -101,7 +101,7 @@ taskswitching$treatment <- ifelse((taskswitching$users == "High users"), 1, ifel
 taskswitching_ps <- taskswitching[!is.na(taskswitching$treatment) & !is.na(taskswitching$sex), ]
 
 # Fit a propensity score model
-psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + year_of_birth, 
+psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + age, 
                  data = taskswitching_ps, family = binomial())
 
 # Compute propensity scores

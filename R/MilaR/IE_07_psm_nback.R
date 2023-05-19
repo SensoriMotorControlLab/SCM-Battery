@@ -13,7 +13,7 @@ other_users <- subset(nback, id %in% high_users_id & users != "High users")
 nback_subset <- nback[nback$id %in% other_users$id, ]
 
 # Identify duplicated rows
-dup_rows <- duplicated(nback_subset)
+dup_rows <- duplicated(nback_subset[c("id", "group")])
 
 # Keep only the non-duplicated rows
 nback_subset <- nback_subset[!dup_rows, ]
@@ -103,7 +103,7 @@ nback$treatment <- ifelse((nback$users == "High users"), 1, ifelse((nback$users 
 nback_ps <- nback[!is.na(nback$treatment) & !is.na(nback$sex), ]
 
 # Fit a propensity score model
-psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + year_of_birth, 
+psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + age, 
                  data = nback_ps, family = binomial())
 
 # Compute propensity scores

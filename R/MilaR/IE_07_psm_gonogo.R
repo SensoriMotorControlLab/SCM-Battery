@@ -15,7 +15,7 @@ other_users <- subset(gonogo, id %in% high_users_id & users != "High users")
 gonogo_subset <- gonogo[gonogo$id %in% other_users$id, ]
 
 # Identify duplicated rows
-dup_rows <- duplicated(gonogo_subset)
+dup_rows <- duplicated(gonogo_subset[c("id", "group")])
 
 # Keep only the non-duplicated rows
 gonogo_subset <- gonogo_subset[!dup_rows, ]
@@ -75,7 +75,7 @@ gonogo$treatment <- ifelse((gonogo$users == "High users"), 1, ifelse((gonogo$use
 gonogo_ps <- gonogo[!is.na(gonogo$treatment) & !is.na(gonogo$sex), ]
 
 # Fit a propensity score model
-psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + year_of_birth, 
+psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + age, 
                  data = gonogo_ps, family = binomial())
 
 # Compute propensity scores

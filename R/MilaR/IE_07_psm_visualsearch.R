@@ -1,35 +1,3 @@
-library(MatchIt)
-library(ggplot2)
-library(survey)
-library(flextable)
-library(dplyr)
-
-library(rlang)
-
-library(srvyr)
-
-library(gtsummary)
-
-library(stargazer)
-library(tibble)
-
-library(jtools)
-library(broom.mixed)
-
-library(ggpubr)
-library(ggstatsplot)
-
-library(BayesFactor)
-
-library(ggrepel)
-
-library(reshape2)
-
-library(performance)
-library(tidyr)
-
-library(stringr)
-
 #### matching by sober/high id ####
 
 # Subset the data frame where users == "High users"
@@ -45,7 +13,7 @@ other_users <- subset(visualsearch, id %in% high_users_id & users != "High users
 visualsearch_subset <- visualsearch[visualsearch$id %in% other_users$id, ]
 
 # Identify duplicated rows
-dup_rows <- duplicated(visualsearch_subset)
+dup_rows <- duplicated(visualsearch_subset[c("id", "group")])
 
 # Keep only the non-duplicated rows
 visualsearch_subset <- visualsearch_subset[!dup_rows, ]
@@ -173,7 +141,7 @@ visualsearch$treatment <- ifelse((visualsearch$users == "High users"), 1, ifelse
 visualsearch_ps <- visualsearch[!is.na(visualsearch$treatment) & !is.na(visualsearch$sex), ]
 
 # Fit a propensity score model
-psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + year_of_birth, 
+psm_model <- glm(treatment ~ as.factor(sex) + physically_activity + stressed + video_games + age, 
                  data = visualsearch_ps, family = binomial())
 
 # Compute propensity scores

@@ -16,7 +16,7 @@ library(jtools)
 library(broom.mixed)
 
 library(ggpubr)
-library(ggstatsplot)
+#library(ggstatsplot)
 
 library(BayesFactor)
 
@@ -33,25 +33,25 @@ library(stringr)
 #### visualsearch ####
 
 ## looks like all passed screening?
-visualsearch <- visualsearch %>%
-  filter(passedscreening == TRUE)
+#visualsearch <- visualsearch %>%
+#  filter(passedscreening == TRUE)
 
 # add new category for high users
 visualsearch <- visualsearch %>% 
-  mutate(users = cannabis_freqnum,
+  mutate(users = cannabis_group,
          users = case_when(
-           is.na(cannabis_freqnum) ~ "High users",
-           cannabis_freqnum == 0 ~ "Non-users",
-           cannabis_freqnum > 5 ~ "Frequent users",
-           TRUE ~ "Infrequent users"
+           group == "experimental" ~ "High users",
+           cannabis_group == "Non-users" ~ "Non-users",
+           cannabis_group == "Infrequent users" ~ "Infrequent users",
+           cannabis_group == "Frequent users" ~ "Frequent users"
          ))
 
 # fill used by down
-visualsearch <- visualsearch %>% 
-  group_by(id) %>% 
-  fill(sex, physically_activity, stressed, video_games, sleep_last, 
-       concussion, music, year_of_birth, cannabis_group,
-       cannabis_freqnum, .direction = "downup")
+#visualsearch <- visualsearch %>% 
+#  group_by(id) %>% 
+#  fill(sex, physically_activity, stressed, video_games, sleep_last, 
+#       concussion, music, year_of_birth, cannabis_group,
+#       cannabis_freqnum, .direction = "downup")
 
 # Reorder the 'users' factor variable according to the vector above
 visualsearch$users <- factor(visualsearch$users, levels = user_order)
@@ -339,87 +339,5 @@ vs %>%
                                 paste0("High users\n (n=", table(visualsearch$users)["High users"][[1]], ")")))+
   scale_shape_discrete(name = "Condition") +
   scale_linetype_discrete(name = "Condition")
-
-
-
-#### prepare descriptive table ####
-
-tbl_svysummary <-
-  survey::svydesign(~1, data = visualsearch) %>%
-  tbl_svysummary(by = users,
-                 include = c(RT_6_absent, RT_12_absent, RT_18_absent,
-                             RT_6_present, RT_12_present, RT_18_present, totaltime),
-                 type = list(RT_6_absent ~ 'continuous',
-                             RT_12_absent ~ 'continuous', 
-                             RT_18_absent ~ 'continuous', 
-                             RT_6_present ~ 'continuous',
-                             RT_12_present ~ 'continuous', 
-                             RT_18_present ~ 'continuous', 
-                             totaltime ~ 'continuous'),
-                 statistic = list(all_continuous() ~ "{mean} ({sd})"),
-                 digits = list(all_continuous() ~ 3)) %>%
-  modify_caption("Table 1. Descriptive Statistics") %>%
-  as_flex_table()
-
-tbl_svysummary
-
-#### saving output in a Word document ####
-
-save_as_docx(tbl_svysummary, path = "data/output/Table_vs_1.docx")
-
-#### vs model ####
-
-# Perform linear regression
-model <- lm(dprime ~ users, data = visualsearch)
-
-# View summary of regression model
-model_1 <- lm(RT_6_absent ~ users, data = visualsearch)
-model_2 <- lm(RT_12_absent ~ users, data = visualsearch)
-model_3 <- lm(RT_18_absent ~ users, data = visualsearch)
-model_4 <- lm(RT_6_present ~ users, data = visualsearch)
-model_5 <- lm(RT_12_present ~ users, data = visualsearch)
-model_6 <- lm(RT_18_present ~ users, data = visualsearch)
-
-stargazer(model_1, model_2, model_3, 
-          model_4, model_5, model_6, title = "Table 2. Regression Model", type="text", out = "data/output/Table_vs_2.doc")
-
-## anova
-
-model_1 <- aov(RT_6_absent ~ users, data = visualsearch)
-model_2 <- aov(RT_12_absent ~ users, data = visualsearch)
-model_3 <- aov(RT_18_absent ~ users, data = visualsearch)
-model_4 <- aov(RT_6_present ~ users, data = visualsearch)
-model_5 <- aov(RT_12_present ~ users, data = visualsearch)
-model_6 <- aov(RT_18_present ~ users, data = visualsearch)
-
-stargazer(model_1, model_2, model_3, model_4, model_5, model_6, 
-          out = "data/output/Table_vs_3.doc")
-
-# Perform Tukey's HSD test
-my_tukey_1 <- TukeyHSD(model_1)
-my_tukey_2 <- TukeyHSD(model_2)
-my_tukey_3 <- TukeyHSD(model_3)
-my_tukey_4 <- TukeyHSD(model_4)
-my_tukey_5 <- TukeyHSD(model_5)
-my_tukey_6 <- TukeyHSD(model_6)
-
-# Combine the Tukey HSD results into a single data frame
-tukey_tbl <- bind_rows(
-  as.data.frame(my_tukey_1[[1]][, c(1, 4)]),
-  as.data.frame(my_tukey_2[[1]][, c(1, 4)]),
-  as.data.frame(my_tukey_3[[1]][, c(1, 4)]),
-  as.data.frame(my_tukey_4[[1]][, c(1, 4)]),
-  as.data.frame(my_tukey_5[[1]][, c(1, 4)]),
-  as.data.frame(my_tukey_6[[1]][, c(1, 4)])
-)
-
-# Add index as column
-tukey_tbl <- tukey_tbl %>% rownames_to_column(var = "index")
-
-# create a flextable object
-flex_tbl <- flextable(tukey_tbl)
-
-# create a Word document
-save_as_docx(flex_tbl, path = "data/output/flex_tbl_2.docx")
 
 

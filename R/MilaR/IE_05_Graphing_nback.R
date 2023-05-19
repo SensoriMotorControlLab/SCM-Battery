@@ -1,6 +1,4 @@
 library(ggplot2)
-library(survey)
-library(flextable)
 library(dplyr)
 
 library(rlang)
@@ -16,7 +14,7 @@ library(jtools)
 library(broom.mixed)
 
 library(ggpubr)
-library(ggstatsplot)
+#library(ggstatsplot)
 
 library(BayesFactor)
 
@@ -30,25 +28,25 @@ library(tidyr)
 #### nback ####
 
 ## filter those that didn't pass the screening (n = 103, removed)
-nback <- nback %>%
-  filter(passedscreening == TRUE)
+#nback <- nback %>%
+#  filter(passedscreening == TRUE)
 
 # add new category for high users
 nback <- nback %>% 
-  mutate(users = cannabis_freqnum,
+  mutate(users = cannabis_group,
          users = case_when(
-           is.na(cannabis_freqnum) ~ "High users",
-           cannabis_freqnum == 0 ~ "Non-users",
-           cannabis_freqnum > 5 ~ "Frequent users",
-           TRUE ~ "Infrequent users"
+           group == "experimental" ~ "High users",
+           cannabis_group == "Non-users" ~ "Non-users",
+           cannabis_group == "Infrequent users" ~ "Infrequent users",
+           cannabis_group == "Frequent users" ~ "Frequent users"
          ))
 
 # fill used by down
-nback <- nback %>% 
-  group_by(id) %>% 
-  fill(sex, physically_activity, stressed, video_games, sleep_last, 
-       concussion, music, year_of_birth, cannabis_group,
-       cannabis_freqnum, .direction = "downup")
+#nback <- nback %>% 
+#  group_by(id) %>% 
+#  fill(sex, physically_activity, stressed, video_games, sleep_last, 
+#       concussion, music, year_of_birth, cannabis_group,
+#       cannabis_freqnum, .direction = "downup")
 
 nback  %>%
   group_by(users) %>%
@@ -76,8 +74,10 @@ for (k in c("N1_dprime", "N2_dprime", "N3_dprime")) {
       if (i == j | i > j) {
         bf_matrix[i,j] <- "-"
       } else {
-        test <- extractBF(ttestBF(x = subset(nback, users == levels(nback$users)[i])[[k]],
-                        y = subset(nback, users == levels(nback$users)[j])[[k]]))$bf
+        a = subset(nback, users == levels(nback$users)[i])[[k]]
+        b = subset(nback, users == levels(nback$users)[j])[[k]]
+        test <- extractBF(ttestBF(x = a,
+                        y = b))$bf
         bf_matrix[i,j] <- round(exp(test), 2)
       }
     }
@@ -170,41 +170,3 @@ ggplot(nb, aes(x = tasks, y = dprime, fill = users)) +
     xmin = "group_1", xmax = "group_2",
     y.position = "y"
   )
-
-
-
-
-
-
-#### prepare descriptive table ####
-
-tbl_svysummary <-
-  survey::svydesign(~1, data = nback) %>%
-  tbl_svysummary(by = users,
-                 include = c(singleblock_1_RT, switch_RT, congruent_RT, totaltime),
-                 type = list(singleblock_1_RT ~ 'continuous',
-                             congruent_RT ~ 'continuous', 
-                             switch_RT ~ 'continuous', 
-                             totaltime ~ 'continuous'),
-                 statistic = list(all_continuous() ~ "{mean} ({sd})"),
-                 digits = list(all_continuous() ~ 3)) %>%
-  modify_caption("Table 1. Descriptive Statistics") %>%
-  as_flex_table()
-
-tbl_svysummary
-
-#### saving output in a Word document ####
-
-save_as_docx(tbl_svysummary, path = "data/output/Table_ts_1.docx")
-
-#### ts model ####
-
-# Perform linear regression
-model_1 <- lm(singleblock_1_RT ~ users, data = nback)
-model_2 <- lm(congruent_RT ~ users, data = nback)
-model_3 <- lm(switch_RT ~ users, data = nback)
-
-stargazer(model_1, model_2, model_3, title = "Table 2. Regression Model", type="text", out = "data/output/Table_ts_2.doc")
-
-
-####
