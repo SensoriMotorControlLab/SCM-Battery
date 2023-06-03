@@ -114,7 +114,64 @@ for (k in c("RT_6_absent", "RT_12_absent", "RT_18_absent",
   bf_df_all <- rbind(bf_df_all, bf_df)
 }
 
-# BF for propcorrect
+# calculate y positions and add users
+
+vs <-visualsearch %>%
+  select(RT_6_absent:RT_18_present, users)  %>%
+  pivot_longer(RT_6_absent:RT_18_present, names_to = "Group", values_to = "RT") %>%
+  mutate(set_size = Group,
+         set_size = case_when(Group == "RT_6_absent" ~ 6,
+                              Group == "RT_12_absent" ~ 12,
+                              Group == "RT_18_absent" ~ 18,
+                              Group == "RT_6_present" ~ 6,
+                              Group == "RT_12_present" ~ 12,
+                              Group == "RT_18_present" ~ 18)) %>%
+  mutate(Present = Group,
+         Present = case_when(Group == "RT_6_absent" ~ "absent",
+                             Group == "RT_12_absent" ~ "absent",
+                             Group == "RT_18_absent" ~ "absent",
+                             Group == "RT_6_present" ~ "present",
+                             Group == "RT_12_present" ~ "present",
+                             Group == "RT_18_present" ~ "present"))  %>%
+  group_by(users, set_size, Present) %>%
+  mutate(count = n()) %>%
+  group_by(users, set_size, Present, count) %>%
+  summarise_at(vars(RT), list(mean = mean, sd = sd)) %>%
+  mutate(se = sd/sqrt(count))
+
+bf_df_all <- bf_df_all %>% mutate(set_size = str_extract(group, "\\d+"))
+bf_df_all <- bf_df_all %>% mutate(Present = str_extract(group, "(present|absent)"))
+
+bf_df_all <- bf_df_all %>% mutate(y = group1,
+                                        y = case_when(group1 == "Non-users" ~ as.numeric(set_size) + 0.8,
+                                                      group1 == "Infrequent users" ~ as.numeric(set_size) + 1.6,
+                                                      group1 == "Frequent users" ~ as.numeric(set_size) + 2.4))
+
+bf_df_all <- bf_df_all %>%
+  mutate(group_1 = vs$mean[match(paste(group1, set_size, Present), paste(vs$users, vs$set_size, vs$Present))])
+
+bf_df_all <- bf_df_all %>%
+  mutate(group_2 = vs$mean[match(paste(group2, set_size, Present), paste(vs$users, vs$set_size, vs$Present))])
+
+bf_df_all$users <- bf_df_all$group1
+
+bf_df_all <- bf_df_all %>%
+  mutate(
+    group_min = ifelse(group_1 > group_2, group_2, group_1),
+    group_max = ifelse(group_1 > group_2, group_1, group_2)
+  )
+
+bf_df_all$p.adj <- as.numeric(bf_df_all$p.adj)
+bf_df_all$set_size <- as.double(bf_df_all$set_size)
+
+bf_df_all <- bf_df_all %>% 
+  select(p.adj, set_size, users, y, Present, group_min, group_max)
+
+bf_df_all$group1 <- bf_df_all$group_min
+bf_df_all$group2 <- bf_df_all$group_max
+
+
+#### BF for propcorrect
 bf_df_all_pc <- data.frame(group = character(),
                         group1 = character(),
                         group2 = character(),
@@ -218,27 +275,27 @@ bf_df_all_pc$group2 <- bf_df_all_pc$group_max
 #### anova ####
 
 vs <-visualsearch %>%
-  select(propcorrect_6_absent:propcorrect_18_present, users)  %>%
-  pivot_longer(propcorrect_6_absent:propcorrect_18_present, names_to = "Group", values_to = "PC") %>%
+  select(RT_6_absent:RT_18_present, users)  %>%
+  pivot_longer(RT_6_absent:RT_18_present, names_to = "Group", values_to = "RT") %>%
   mutate(set_size = Group,
-         set_size = case_when(Group == "propcorrect_6_absent" ~ 6,
-                              Group == "propcorrect_12_absent" ~ 12,
-                              Group == "propcorrect_18_absent" ~ 18,
-                              Group == "propcorrect_6_present" ~ 6,
-                              Group == "propcorrect_12_present" ~ 12,
-                              Group == "propcorrect_18_present" ~ 18)) %>%
+         set_size = case_when(Group == "RT_6_absent" ~ 6,
+                              Group == "RT_12_absent" ~ 12,
+                              Group == "RT_18_absent" ~ 18,
+                              Group == "RT_6_present" ~ 6,
+                              Group == "RT_12_present" ~ 12,
+                              Group == "RT_18_present" ~ 18)) %>%
   mutate(Present = Group,
-         Present = case_when(Group == "propcorrect_6_absent" ~ "absent",
-                             Group == "propcorrect_12_absent" ~ "absent",
-                             Group == "propcorrect_18_absent" ~ "absent",
-                             Group == "propcorrect_6_present" ~ "present",
-                             Group == "propcorrect_12_present" ~ "present",
-                             Group == "propcorrect_18_present" ~ "present"))  
+         Present = case_when(Group == "RT_6_absent" ~ "absent",
+                             Group == "RT_12_absent" ~ "absent",
+                             Group == "RT_18_absent" ~ "absent",
+                             Group == "RT_6_present" ~ "present",
+                             Group == "RT_12_present" ~ "present",
+                             Group == "RT_18_present" ~ "present"))  
 
 vs$set_size_factor <- as.factor(vs$set_size)
 vs$Present_factor <- as.factor(vs$Present)
 
-model_vs <- anovaBF(formula = PC ~ users*set_size_factor*Present_factor, data = vs, rscaleFixed = "wide")
+model_vs <- anovaBF(formula = RT ~ users*set_size_factor*Present_factor, data = vs, rscaleFixed = "wide")
 
 extractBF(model_vs)
 
@@ -269,6 +326,8 @@ vs <-visualsearch %>%
   group_by(users, set_size, Present, count) %>%
   summarise_at(vars(RT), list(mean = mean, sd = sd)) %>%
   mutate(se = sd/sqrt(count))
+
+
 # plot for RT
 visualsearch %>%
   select(RT_6_absent:RT_18_present, users)  %>%
@@ -292,22 +351,35 @@ visualsearch %>%
   group_by(users, set_size, Present, count) %>%
   summarise_at(vars(RT), list(mean = mean, sd = sd)) %>%
   mutate(se = sd/sqrt(count))%>%
-  ggplot(aes(x=factor(set_size), y=mean, 
+  ggplot(aes(y=set_size, x=mean, 
              group=interaction(Present, users),
              shape = Present,
              color=users)) + 
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), 
+  geom_errorbar(aes(xmin=mean-se, xmax=mean+se), 
                 position=position_dodge(width=0.05),
                 width = 0.1) +
-  geom_line(aes(linetype = Present)) +
+  geom_path(aes(linetype = Present)) +
   geom_point(size=3) +
+  stat_pvalue_manual(
+    data = bf_df_all, label = "BF = {p.adj}",
+    xmin = "group_min", xmax = "group_max",
+    y.position = "y", coord.flip = TRUE,
+    vjust = 0
+  )+ 
+  scale_y_continuous(breaks = c(6,12,18))+
   theme_bw()+
-  theme(legend.position = "bottom", axis.title.y = element_text(face = "bold"),
+  theme(legend.position = "bottom", axis.title.x = element_text(face = "bold"),
         plot.title = element_text(face = "bold"),
         panel.border = element_blank())+
-  labs(title = "Visual Search", x = "")+ 
-  scale_y_continuous(limits = c(1, 5), name = "Reaction Time (s)") +
-  xlab("Set Size")
+  labs(title = "Visual Search", x = "RT", y = "Set size")+ 
+  scale_color_discrete(name = "Users", 
+                       labels=c(paste0("Non-User\n (n=", table(visualsearch$users)["Non-users"][[1]], ")"), 
+                                paste0("Infrequent User\n (n=", table(visualsearch$users)["Infrequent users"][[1]], ")"), 
+                                paste0("Frequent Users\n (n=", table(visualsearch$users)["Frequent users"][[1]], ")"), 
+                                paste0("High users\n (n=", table(visualsearch$users)["High users"][[1]], ")")))+
+  scale_shape_discrete(name = "Condition") +
+  scale_linetype_discrete(name = "Condition") +
+  coord_flip()
 
 ## by correctness
 # line segment graph

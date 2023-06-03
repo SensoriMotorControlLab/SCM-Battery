@@ -32,10 +32,8 @@ bf_df_all_pc <- data.frame(group1 = character(),
                     group = character())
 
 # loop over the variables and fill the matrix
-for (k in c("propcorrect_6_absent", "propcorrect_12_absent", "propcorrect_18_absent",
-            "propcorrect_6_present", "propcorrect_12_present", "propcorrect_18_present")) {
-  
-
+for (k in c("RT_6_absent", "RT_12_absent", "RT_18_absent",
+            "RT_6_present", "RT_12_present", "RT_18_present")) {
   
   test <- extractBF(ttestBF(x = subset(visualsearch_subset, group == "control")[[k]],
                   y = subset(visualsearch_subset, group == "experimental")[[k]]))$bf
@@ -52,22 +50,22 @@ for (k in c("propcorrect_6_absent", "propcorrect_12_absent", "propcorrect_18_abs
 # calculate y positions and add users
 
 vs <-visualsearch_subset %>%
-  select(propcorrect_6_absent:propcorrect_18_present, group)  %>%
-  pivot_longer(propcorrect_6_absent:propcorrect_18_present, names_to = "Group", values_to = "RT") %>%
+  select(RT_6_absent:RT_18_present, group)  %>%
+  pivot_longer(RT_6_absent:RT_18_present, names_to = "Group", values_to = "RT") %>%
   mutate(set_size = Group,
-         set_size = case_when(Group == "propcorrect_6_absent" ~ 6,
-                              Group == "propcorrect_12_absent" ~ 12,
-                              Group == "propcorrect_18_absent" ~ 18,
-                              Group == "propcorrect_6_present" ~ 6,
-                              Group == "propcorrect_12_present" ~ 12,
-                              Group == "propcorrect_18_present" ~ 18)) %>%
+         set_size = case_when(Group == "RT_6_absent" ~ 6,
+                              Group == "RT_12_absent" ~ 12,
+                              Group == "RT_18_absent" ~ 18,
+                              Group == "RT_6_present" ~ 6,
+                              Group == "RT_12_present" ~ 12,
+                              Group == "RT_18_present" ~ 18)) %>%
   mutate(Present = Group,
-         Present = case_when(Group == "propcorrect_6_absent" ~ "absent",
-                             Group == "propcorrect_12_absent" ~ "absent",
-                             Group == "propcorrect_18_absent" ~ "absent",
-                             Group == "propcorrect_6_present" ~ "present",
-                             Group == "propcorrect_12_present" ~ "present",
-                             Group == "propcorrect_18_present" ~ "present"))  %>%
+         Present = case_when(Group == "RT_6_absent" ~ "absent",
+                             Group == "RT_12_absent" ~ "absent",
+                             Group == "RT_18_absent" ~ "absent",
+                             Group == "RT_6_present" ~ "present",
+                             Group == "RT_12_present" ~ "present",
+                             Group == "RT_18_present" ~ "present"))  %>%
   group_by(group, set_size, Present) %>%
   mutate(count = n()) %>%
   group_by(group, set_size, Present, count) %>%
@@ -119,19 +117,21 @@ vs %>%
   stat_pvalue_manual(
     data = bf_df_all_pc, label = "BF = {p.adj}",
     xmin = "group_min", xmax = "group_max",
-    y.position = "y"
+    y.position = "y", coord.flip = TRUE,
+    vjust = 0
   )+ 
   scale_y_continuous(breaks = c(6,12,18))+
   theme_bw()+
   theme(legend.position = "bottom", axis.title.x = element_text(face = "bold"),
         plot.title = element_text(face = "bold"),
         panel.border = element_blank())+
-  labs(title = "Same Sample Visual Search", x = "Proportion correct", y = "Set size")+ 
+  labs(title = "Same Sample: Visual Search", x = "RT", y = "Set size")+ 
   scale_color_discrete(name = "Group", 
                        labels=c(paste0("Control\n (n=", table(visualsearch_subset$group)["control"][[1]], ")"), 
                                 paste0("Experimental\n (n=", table(visualsearch_subset$group)["experimental"][[1]], ")")))+
   scale_shape_discrete(name = "Condition") +
-  scale_linetype_discrete(name = "Condition")
+  scale_linetype_discrete(name = "Condition") +
+  coord_flip()
 
 #### psm matched ####
 
@@ -163,8 +163,8 @@ bf_df_all_pc <- data.frame(group1 = character(),
                            group = character())
 
 # loop over the variables and fill the matrix
-for (k in c("propcorrect_6_absent", "propcorrect_12_absent", "propcorrect_18_absent",
-            "propcorrect_6_present", "propcorrect_12_present", "propcorrect_18_present")) {
+for (k in c("RT_6_absent", "RT_12_absent", "RT_18_absent",
+            "RT_6_present", "RT_12_present", "RT_18_present")) {
   
   
   
@@ -183,22 +183,22 @@ for (k in c("propcorrect_6_absent", "propcorrect_12_absent", "propcorrect_18_abs
 # calculate y positions and add users
 
 vs <-matched_visualsearch %>%
-  select(propcorrect_6_absent:propcorrect_18_present, group)  %>%
-  pivot_longer(propcorrect_6_absent:propcorrect_18_present, names_to = "Group", values_to = "RT") %>%
+  select(RT_6_absent:RT_18_present, group)  %>%
+  pivot_longer(RT_6_absent:RT_18_present, names_to = "Group", values_to = "RT") %>%
   mutate(set_size = Group,
-         set_size = case_when(Group == "propcorrect_6_absent" ~ 6,
-                              Group == "propcorrect_12_absent" ~ 12,
-                              Group == "propcorrect_18_absent" ~ 18,
-                              Group == "propcorrect_6_present" ~ 6,
-                              Group == "propcorrect_12_present" ~ 12,
-                              Group == "propcorrect_18_present" ~ 18)) %>%
+         set_size = case_when(Group == "RT_6_absent" ~ 6,
+                              Group == "RT_12_absent" ~ 12,
+                              Group == "RT_18_absent" ~ 18,
+                              Group == "RT_6_present" ~ 6,
+                              Group == "RT_12_present" ~ 12,
+                              Group == "RT_18_present" ~ 18)) %>%
   mutate(Present = Group,
-         Present = case_when(Group == "propcorrect_6_absent" ~ "absent",
-                             Group == "propcorrect_12_absent" ~ "absent",
-                             Group == "propcorrect_18_absent" ~ "absent",
-                             Group == "propcorrect_6_present" ~ "present",
-                             Group == "propcorrect_12_present" ~ "present",
-                             Group == "propcorrect_18_present" ~ "present"))  %>%
+         Present = case_when(Group == "RT_6_absent" ~ "absent",
+                             Group == "RT_12_absent" ~ "absent",
+                             Group == "RT_18_absent" ~ "absent",
+                             Group == "RT_6_present" ~ "present",
+                             Group == "RT_12_present" ~ "present",
+                             Group == "RT_18_present" ~ "present"))  %>%
   group_by(group, set_size, Present) %>%
   mutate(count = n()) %>%
   group_by(group, set_size, Present, count) %>%
@@ -250,16 +250,18 @@ vs %>%
   stat_pvalue_manual(
     data = bf_df_all_pc, label = "BF = {p.adj}",
     xmin = "group_min", xmax = "group_max",
-    y.position = "y"
+    y.position = "y", coord.flip = TRUE,
+    vjust = 0
   )+ 
   scale_y_continuous(breaks = c(6,12,18))+
   theme_bw()+
   theme(legend.position = "bottom", axis.title.x = element_text(face = "bold"),
         plot.title = element_text(face = "bold"),
         panel.border = element_blank())+
-  labs(title = "Matched Visual Search", x = "Proportion correct", y = "Set size")+ 
+  labs(title = "Matched: Visual Search", x = "RT", y = "Set size")+ 
   scale_color_discrete(name = "Group", 
                        labels=c(paste0("Control\n (n=", table(matched_visualsearch$group)["control"][[1]], ")"), 
                                 paste0("Experimental\n (n=", table(matched_visualsearch$group)["experimental"][[1]], ")")))+
   scale_shape_discrete(name = "Condition") +
-  scale_linetype_discrete(name = "Condition")
+  scale_linetype_discrete(name = "Condition") +
+  coord_flip()

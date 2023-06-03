@@ -1,3 +1,5 @@
+library(gtsummary)
+
 #### prepare descriptive table ####
 
 tbl_1 <-
@@ -13,7 +15,6 @@ tbl_summary(data = gonogo, by = users, percent = "column",
               type = list(dprime ~ 'continuous'),
               statistic = list(all_continuous() ~ "{mean} ({sd})"),
               digits = list(all_continuous() ~ 3)) %>%
-  add_p(dprime ~ users) %>%
   modify_caption("Table 1. Descriptive Statistics") 
 
 
@@ -37,14 +38,14 @@ tbl_1_3 <-
 
 tbl_2 <-
   tbl_summary(data = visualsearch, by = users, percent = "column",
-              include = c(propcorrect_6_absent, propcorrect_12_absent, propcorrect_18_absent,
-                          propcorrect_6_present, propcorrect_12_present, propcorrect_18_present),
-              type = list(propcorrect_6_absent ~ 'continuous', 
-                          propcorrect_12_absent ~ 'continuous', 
-                          propcorrect_18_absent ~ 'continuous',
-                          propcorrect_6_present ~ 'continuous', 
-                          propcorrect_12_present ~ 'continuous', 
-                          propcorrect_18_present ~ 'continuous'),
+              include = c(RT_6_absent, RT_12_absent, RT_18_absent,
+                          RT_6_present, RT_12_present, RT_18_present),
+              type = list(RT_6_absent ~ 'continuous', 
+                          RT_12_absent ~ 'continuous', 
+                          RT_18_absent ~ 'continuous',
+                          RT_6_present ~ 'continuous', 
+                          RT_12_present ~ 'continuous', 
+                          RT_18_present ~ 'continuous'),
               statistic = list(all_continuous() ~ "{mean} ({sd})"),
               digits = list(all_continuous() ~ 3)) %>%
   modify_caption("Table 1. Descriptive Statistics") 
@@ -52,28 +53,28 @@ tbl_2 <-
 
 tbl_2_2 <-
   tbl_summary(data = visualsearch_subset, by = group, percent = "column",
-              include = c(propcorrect_6_absent, propcorrect_12_absent, propcorrect_18_absent,
-                          propcorrect_6_present, propcorrect_12_present, propcorrect_18_present),
-              type = list(propcorrect_6_absent ~ 'continuous', 
-                          propcorrect_12_absent ~ 'continuous', 
-                          propcorrect_18_absent ~ 'continuous',
-                          propcorrect_6_present ~ 'continuous', 
-                          propcorrect_12_present ~ 'continuous', 
-                          propcorrect_18_present ~ 'continuous'),
+              include = c(RT_6_absent, RT_12_absent, RT_18_absent,
+                          RT_6_present, RT_12_present, RT_18_present),
+              type = list(RT_6_absent ~ 'continuous', 
+                          RT_12_absent ~ 'continuous', 
+                          RT_18_absent ~ 'continuous',
+                          RT_6_present ~ 'continuous', 
+                          RT_12_present ~ 'continuous', 
+                          RT_18_present ~ 'continuous'),
               statistic = list(all_continuous() ~ "{mean} ({sd})"),
               digits = list(all_continuous() ~ 3)) %>%
   modify_caption("Table 1. Descriptive Statistics") 
 
 tbl_2_3 <-
   tbl_summary(data = matched_visualsearch, by = group, percent = "column",
-              include = c(propcorrect_6_absent, propcorrect_12_absent, propcorrect_18_absent,
-                          propcorrect_6_present, propcorrect_12_present, propcorrect_18_present),
-              type = list(propcorrect_6_absent ~ 'continuous', 
-                          propcorrect_12_absent ~ 'continuous', 
-                          propcorrect_18_absent ~ 'continuous',
-                          propcorrect_6_present ~ 'continuous', 
-                          propcorrect_12_present ~ 'continuous', 
-                          propcorrect_18_present ~ 'continuous'),
+              include = c(RT_6_absent, RT_12_absent, RT_18_absent,
+                          RT_6_present, RT_12_present, RT_18_present),
+              type = list(RT_6_absent ~ 'continuous', 
+                          RT_12_absent ~ 'continuous', 
+                          RT_18_absent ~ 'continuous',
+                          RT_6_present ~ 'continuous', 
+                          RT_12_present ~ 'continuous', 
+                          RT_18_present ~ 'continuous'),
               statistic = list(all_continuous() ~ "{mean} ({sd})"),
               digits = list(all_continuous() ~ 3)) %>%
   modify_caption("Table 1. Descriptive Statistics") 
@@ -163,12 +164,46 @@ tbl_5_3 <-
               digits = list(all_continuous() ~ 3)) %>%
   modify_caption("Table 1. Descriptive Statistics") 
 
+tbl_6 <-
+  tbl_summary(data = tunneling, by = users, percent = "column",
+              include = c(MT_sc40, MT_sc60, MT_sc80, MT_sc100),
+              type = list(MT_sc40 ~ 'continuous',
+                          MT_sc60 ~ 'continuous',
+                          MT_sc80 ~ 'continuous',
+                          MT_sc100 ~ 'continuous'),
+              statistic = list(all_continuous() ~ "{mean} ({sd})"),
+              digits = list(all_continuous() ~ 3)) %>%
+  modify_caption("Table 1. Descriptive Statistics") 
+
+tbl_6_2 <-
+  tbl_summary(data = tunneling_subset, by = group, percent = "column",
+              include = c(MT_sc40, MT_sc60, MT_sc80, MT_sc100),
+              type = list(MT_sc40 ~ 'continuous',
+                          MT_sc60 ~ 'continuous',
+                          MT_sc80 ~ 'continuous',
+                          MT_sc100 ~ 'continuous'),
+              statistic = list(all_continuous() ~ "{mean} ({sd})"),
+              digits = list(all_continuous() ~ 3)) %>%
+  modify_caption("Table 1. Descriptive Statistics") 
+
+tbl_6_3 <-
+  tbl_summary(data = matched_tunneling, by = group, percent = "column",
+              include = c(MT_sc40, MT_sc60, MT_sc80, MT_sc100),
+              type = list(MT_sc40 ~ 'continuous',
+                          MT_sc60 ~ 'continuous',
+                          MT_sc80 ~ 'continuous',
+                          MT_sc100 ~ 'continuous'),
+              statistic = list(all_continuous() ~ "{mean} ({sd})"),
+              digits = list(all_continuous() ~ 3)) %>%
+  modify_caption("Table 1. Descriptive Statistics") 
+
 tbl_combined <- tbl_merge(
     tbls = list(tbl_1, tbl_1_2, tbl_1_3,
                 tbl_2, tbl_2_2, tbl_2_3,
                 tbl_3, tbl_3_2, tbl_3_3,
                 tbl_4, tbl_4_2, tbl_4_3,
-                tbl_5, tbl_5_2, tbl_5_3)
+                tbl_5, tbl_5_2, tbl_5_3,
+                tbl_6, tbl_6_2, tbl_6_3)
   ) %>%
   as_flex_table()
 
