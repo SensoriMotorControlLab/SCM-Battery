@@ -65,14 +65,33 @@ nback <- function(filename) {
     
     correct <- aggregate(correct ~ target + nback, data=df, FUN=mean)
     
-    if ( any( correct$correct[which(correct$target == 1)] < c(0.50, 0.25, 0.01) ) ) {
-      # low performance!
-      use <- FALSE
-    }
     if (dim(correct)[1] < 6) {
       # missing performance for at least 1 condition
       use <- FALSE
+    } else {
+      
+      for (backN in c(1,2,3)) {
+        idx <- which(correct$nback == backN & correct$target == 1)
+        if (correct$correct[idx] < c(0.50, 0.25, 0.01)[backN]) {
+            use <- FALSE
+        }
+      }
+    
     }
+    
+        
+    # for (backN in c(1,2,3)) {
+    #   idx <- which(correct$nback == backN & correct$target == 1)
+    #   if (length(idx > 0)) {
+    #     if (correct$correct[idx] < c(0.50, 0.25, 0.01)[backN]) {
+    #       use <- FALSE
+    #     }
+    #   } else {
+    #     use <- FALSE
+    #   }
+    # }
+    
+
   } else {
     use <- FALSE # seriously? this happens?
   }

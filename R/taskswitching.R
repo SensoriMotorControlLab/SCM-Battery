@@ -2,7 +2,7 @@
 usefirst <- TRUE
 
 # how many lines should be in a data file? (there may be multiple correct options)
-nlines <- c(77)
+nlines <- c(77,104)
 
 taskswitching <- function(filename) {
   
@@ -20,7 +20,7 @@ taskswitching <- function(filename) {
     df <- df[-which(is.na(df$dots)),]
     block <- c(rep(1,12), rep(2,12), rep(3,50))
   }
-  if (dim(df)[1]==102) {
+  if (dim(df)[1]==103) {
     # remove lines for breaks:
     df <- df[-which(is.na(df$dots)),]
     block <- c(rep(1,12), rep(2,12), rep(3,50), rep(4,12), rep(5,12))
